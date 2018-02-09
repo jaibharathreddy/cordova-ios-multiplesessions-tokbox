@@ -1,0 +1,17 @@
+{
+  "name": "ionic-ios-plugin",
+  "version": "0.0.1",
+  "description": "communication between ionic and ios",
+  "cordova": {
+    "id": "ionic-ios-plugin",
+    "platforms": [
+      "ios"
+    ]
+  },
+  "keywords": [
+    "ecosystem:cordova",
+    "cordova-ios"
+  ],
+  "author": "jai",
+  "license": "apache"
+}
