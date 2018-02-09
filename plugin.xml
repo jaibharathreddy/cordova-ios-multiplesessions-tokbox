@@ -1,0 +1,70 @@
+<?xml version='1.0' encoding='utf-8'?>
+<plugin id="ionic-ios-plugin" version="0.0.1" xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
+    <name>ionicIosCommunication</name>
+    <js-module name="ionicIosCommunication" src="www/ionicIosCommunication.js">
+        <clobbers target="cordova.plugins.ionicIosCommunication" />
+    </js-module>
+    
+    <platform name="ios">
+        <config-file parent="/*" target="config.xml">
+            <feature name="ionicIosCommunication">
+                <param name="ios-package" value="ionicIosCommunication" />
+                <param name="onload" value="true" />
+            </feature>
+        </config-file>
+        
+      <header-file src="src/ios/ionicIosCommunication.h" />
+      <source-file src="src/ios/ionicIosCommunication.m" />
+      <header-file src="src/ios/classes/LiveViewController.h" />
+      <source-file src="src/ios/classes/LiveViewController.m" />
+      <resource-file src="src/ios/classes/LiveViewController.xib" />
+      <header-file src="src/ios/classes/NSDictionary+Safety.h" />
+      <source-file src="src/ios/classes/NSDictionary+Safety.m" />
+      
+      <resource-file src="src/ios/Images.xcassets" />
+     <!-- <resource-file src="src/ios/Resources/images/defaultImg/age1.png" />
+      <resource-file src="src/ios/Resources/images/swapCamImg/reverse cameras.png" />
+      <resource-file src="src/ios/Resources/images/mute/ic_pause_audio-1.png" />
+      <resource-file src="src/ios/Resources/images/c_pause_video/ic_pause_video-1.png" />
+      <resource-file src="src/ios/Resources/images/ic_play_video/ic_play_video-1.png" />
+      <resource-file src="src/ios/Resources/images/unmute/unmute-1.png"/> -->
+      
+      <preference name="CAMERA_USAGE_DESCRIPTION" default="Fitbase needs camera access"/>
+      <config-file target="*-Info.plist" parent="NSCameraUsageDescription">
+         <string>$CAMERA_USAGE_DESCRIPTION</string>
+      </config-file>
+   
+   
+      <preference name="MICROPHONE_USAGE_DESCRIPTION" default="Fitbase needs microphone access"/>
+      <config-file target="*-Info.plist" parent="NSMicrophoneUsageDescription">
+        <string>$MICROPHONE_USAGE_DESCRIPTION</string>
+      </config-file>
+
+
+      <framework src="libstdc++.dylib" />
+      <framework src="libc++.dylib" />
+      <framework src="libxml2.dylib" />
+      <framework src="libsqlite3.dylib" />
+      <framework src="libpthread.dylib" />
+      <framework src="VideoToolbox.framework" />
+      <framework src="src/ios/OpenTok.framework" custom="true" />
+      <framework src="AudioToolbox.framework" />
+      <framework src="CoreData.framework" />
+      <framework src="AVFoundation.framework" />
+      <framework src="CoreGraphics.framework" />
+      <framework src="CoreMedia.framework" />
+      <framework src="CoreVideo.framework" />
+      <framework src="OpenGLES.framework" />
+      <framework src="SystemConfiguration.framework" />
+      <framework src="CoreTelephony.framework" />
+      <framework src="GLKit.framework" />
+      <framework src="EventKit.framework" />
+      <framework src="QuartzCore.framework" />
+      <framework src="MapKit.framework" />
+      <framework src="UIKit.framework" />
+      <framework src="Foundation.framework" />
+      <framework src="Security.framework" />
+      <framework src="CFNetwork.framework" />
+
+    </platform>
+</plugin>
