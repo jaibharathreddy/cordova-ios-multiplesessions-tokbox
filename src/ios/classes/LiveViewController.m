@@ -42,6 +42,8 @@ OTPublisherDelegate,UIGestureRecognizerDelegate>
 @property (weak, nonatomic) IBOutlet UIView *subscriberThree2;
 @property (weak, nonatomic) IBOutlet UIView *subscriberThree3;
 @property (strong, nonatomic) IBOutlet UIButton *exitBtn;
+@property (weak, nonatomic) IBOutlet UIButton *swapCameraButton;
+
 @property (strong, nonatomic) IBOutlet UIButton *audioSubUnsubButton;
 @property (strong, nonatomic) IBOutlet UIButton *videoSubUnsubButton;
 @property (weak, nonatomic) IBOutlet UIActivityIndicatorView *activityIndicator;
@@ -62,11 +64,29 @@ OTPublisherDelegate,UIGestureRecognizerDelegate>
 @property (weak, nonatomic) IBOutlet UIImageView *subFourLayerDefault3;
 @property (weak, nonatomic) IBOutlet UIImageView *subFourLayerDefault4;
 
+
+@property (weak, nonatomic) IBOutlet UILabel *sessionReconnectingMsgLabel;
+
+@property (weak, nonatomic) IBOutlet UIButton *subscriberOneAudioAdjustBtn;
+
+@property (weak, nonatomic) IBOutlet UIButton *subTwoOneAudioAdjustBtn;
+@property (weak, nonatomic) IBOutlet UIButton *subTwoTwoAudioAdjustBtn;
+
+@property (weak, nonatomic) IBOutlet UIButton *subThreeThreeAudioAdjustBtn;
+@property (weak, nonatomic) IBOutlet UIButton *subThreeTwoAudioAdjustBtn;
+@property (weak, nonatomic) IBOutlet UIButton *subThreeOneAudioAdjustBtn;
+
+@property (weak, nonatomic) IBOutlet UIButton *subFourOneAudioAdjustBtn;
+@property (weak, nonatomic) IBOutlet UIButton *subFourTwoAudioAdjustBtn;
+@property (weak, nonatomic) IBOutlet UIButton *subFourThreeAudioAdjustBtn;
+@property (weak, nonatomic) IBOutlet UIButton *subFourFourAudioAdjustBtn;
+
+
 - (void)showReconnectingAlert;
 - (void)dismissReconnectingAlert;
-- (void)showAlertWithMessage:(NSString *)message
+/*- (void)showAlertWithMessage:(NSString *)message
                        title:(NSString *)title
-          showDissmissButton:(BOOL)showButton;
+          showDissmissButton:(BOOL)showButton;*/
 @property (weak, nonatomic) IBOutlet UILabel *timer;
 @property (weak, nonatomic) IBOutlet UILabel *messegeForUser;
 @property NSMutableDictionary *allSubscribers;//
@@ -77,14 +97,101 @@ OTPublisherDelegate,UIGestureRecognizerDelegate>
 
 @implementation LiveViewController
 double countDownTimerMilliSeconds;
-//NSMutableDictionary *connectionsSteamIds;
-NSArray *views;
 NSString *comingView;
 int groupSize;
+NSArray *buttons;
+NSArray *audioButtons;
 bool sessionDisconnect=NO;
 - (void)viewDidLoad {
     [super viewDidLoad];
     [UIApplication sharedApplication].idleTimerDisabled = YES;
+    [self setHidden];
+    buttons=[NSArray arrayWithObjects:_exitBtn,_audioSubUnsubButton,_videoSubUnsubButton,_swapCameraButton,nil];
+    audioButtons=[NSArray arrayWithObjects:_subscriberOneAudioAdjustBtn,_subTwoOneAudioAdjustBtn,_subTwoTwoAudioAdjustBtn,_subThreeThreeAudioAdjustBtn,_subThreeTwoAudioAdjustBtn,_subThreeOneAudioAdjustBtn,_subFourOneAudioAdjustBtn,_subFourTwoAudioAdjustBtn,_subFourThreeAudioAdjustBtn,_subFourFourAudioAdjustBtn, nil];
+    [self setBorderForAudioButtons];
+    _allSubscribers=[[NSMutableDictionary alloc] init];//initializing the variables
+    _allStreams=[[NSMutableDictionary alloc] init];
+    _allConnectionIds=[[NSMutableArray alloc] init];
+    _allSubcribersPresentVideos=[[NSMutableDictionary alloc] init];
+    NSLocale* currentLocale = [NSLocale currentLocale];
+    [[NSDate date] descriptionWithLocale:currentLocale];
+    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+    [dateFormatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ss"];
+    [dateFormatter setTimeZone:[NSTimeZone timeZoneWithAbbreviation:@"GMT"]];
+    NSString *dateStr  = [self.hybridParams safeObjectForKey:@"startDate"];
+    NSString *splitStr = [dateStr componentsSeparatedByString:@"."][0];
+    double minuts = [[self.hybridParams safeObjectForKey:@"duration"] doubleValue];
+    NSDate *addedDate= [[dateFormatter dateFromString:splitStr] dateByAddingTimeInterval:minuts*60]; //adding duretion to startdate
+    NSTimeInterval countDownTimer=[addedDate timeIntervalSince1970];
+    countDownTimerMilliSeconds=countDownTimer*1000; // here we are adding milliseconds to countdowntime
+    [self countDownTime];
+    [self buttonsBackground];
+    [self setupSession];
+    
+    [[NSNotificationCenter defaultCenter]
+     addObserver:self
+     selector:@selector(enteringBackgroundMode:)
+     name:UIApplicationWillResignActiveNotification
+     object:nil];
+    
+    [[NSNotificationCenter defaultCenter]
+     addObserver:self
+     selector:@selector(leavingBackgroundMode:)
+     name:UIApplicationDidBecomeActiveNotification
+     object:nil];
+    
+    
+    isFullScreen = NO;
+    UIPanGestureRecognizer * pan1 = [[UIPanGestureRecognizer alloc]initWithTarget:self action:@selector(moveObject:)];
+    pan1.minimumNumberOfTouches = 1;
+    [_publisherView addGestureRecognizer:pan1];
+    
+    [[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
+    [[NSNotificationCenter defaultCenter]
+     addObserver:self selector:@selector(orientationChanged:)
+     name:UIDeviceOrientationDidChangeNotification
+     object:[UIDevice currentDevice]];
+    // listen to taps around the screen, and hide/show overlay views
+    UITapGestureRecognizer *tgr = [[UITapGestureRecognizer alloc]
+                                   initWithTarget:self
+                                   action:@selector(viewTappedInLive:)];
+    tgr.delegate = self;
+    self.view.userInteractionEnabled = YES;
+    [self.view addGestureRecognizer:tgr];
+    
+}
+-(void)setBorderForAudioButtons{
+    for (int i=0;i<audioButtons.count;i++) {
+        UIButton* uibutton= [audioButtons objectAtIndex:i];
+         [uibutton.layer setBorderWidth:1.0];
+         [uibutton.layer setBorderColor:[[UIColor lightGrayColor] CGColor]];
+    }
+}
+
+/*--buttonsBackground---*/
+-(void) buttonsBackground{
+    for (int i=0;i<buttons.count;i++) {
+        UIButton* uibutton= [buttons objectAtIndex:i];
+        if(uibutton != _exitBtn){
+            [uibutton setBackgroundColor: [UIColor colorWithRed:60/255.0f green:179/255.0f blue:202/255.0f alpha:1.0f]];
+        }
+    }
+}//buttonsBackground
+
+// Handling Background and foreground
+- (void)enteringBackgroundMode:(NSNotification*)notification
+{
+    _publisher.publishVideo = NO;
+}
+
+- (void)leavingBackgroundMode:(NSNotification*)notification
+{
+     [self shuffle];
+    _publisher.publishVideo = YES;
+}
+- (void) setHidden
+{
+    [self.sessionReconnectingMsgLabel setHidden:YES];
     [self.publisherDeaultImage setHidden:YES];
     [self.defaultimage setHidden:YES];
     [self.subscriberView setHidden:NO];
@@ -100,58 +207,90 @@ bool sessionDisconnect=NO;
     [self.subThreeLayerDefaultImg3 setHidden:YES];
     [self.subTwoLayerOneDefaultImage setHidden:YES];
     [self.subTwoLayerTwoDefaultImage setHidden:YES];
-    
-    
-    _allSubscribers=[[NSMutableDictionary alloc] init];//initializing the variables
-    _allStreams=[[NSMutableDictionary alloc] init];
-    _allConnectionIds=[[NSMutableArray alloc] init];
-    _allSubcribersPresentVideos=[[NSMutableDictionary alloc] init];
-    views=@[@"view0",@"view1",@"view2",@"view3",@"view4",@"view5",@"view6",@"view7",@"view8",@"view9"];
-   // connectionsSteamIds=[[NSMutableDictionary alloc] init];
-    NSLocale* currentLocale = [NSLocale currentLocale];
-    [[NSDate date] descriptionWithLocale:currentLocale];
-    
-    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-    [dateFormatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ss"];
-    [dateFormatter setTimeZone:[NSTimeZone timeZoneWithAbbreviation:@"GMT"]];
-    NSString *dateStr  = [self.hybridParams safeObjectForKey:@"startDate"];
-    NSString *splitStr = [dateStr componentsSeparatedByString:@"."][0];
-   // NSDate *dateHybrid = [dateFormatter dateFromString:splitStr]; // create date from string
-    double minuts = [[self.hybridParams safeObjectForKey:@"duration"] doubleValue];
-    NSDate *addedDate= [[dateFormatter dateFromString:splitStr] dateByAddingTimeInterval:minuts*60]; //adding duretion to startdate
-  
-    NSTimeInterval countDownTimer=[addedDate timeIntervalSince1970];
-    countDownTimerMilliSeconds=countDownTimer*1000; // here we are adding milliseconds to countdowntime
-    [self countDownTime];
+    [self.subscriberOneAudioAdjustBtn setHidden:YES];
+}//setHidden Function
 
-    [self setupSession];
-    
-    isFullScreen = NO;
-    
-    [[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
-    [[NSNotificationCenter defaultCenter]
-     addObserver:self selector:@selector(orientationChanged:)
-     name:UIDeviceOrientationDidChangeNotification
-     object:[UIDevice currentDevice]];
-    // listen to taps around the screen, and hide/show overlay views
-    UITapGestureRecognizer *tgr = [[UITapGestureRecognizer alloc]
-                                   initWithTarget:self
-                                   action:@selector(viewTappedInLive:)];
-    tgr.delegate = self;
-    self.view.userInteractionEnabled = YES;
-    [self.view addGestureRecognizer:tgr];
-    
 
-    
+- (IBAction)AdjustSubOneAudio:(id)sender {
+    [self subOneAudio];
 }
--(void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event{
- NSLog(@" hai haelll----------");
- CGPoint touchPoint=[[touches anyObject] locationInView:self.view];
- [_publisherView setCenter:touchPoint];
- [_publisherDeaultImage setCenter:touchPoint];
- }
+- (IBAction)AdjustSubTwoOneAudio:(id)sender {
+    [self subOneAudio];
+}
+- (IBAction)AdjustSubTwoTwoAudio:(id)sender {
+    [self subTwoAudio];
+}
+- (IBAction)AdjustSubThreeOneAudio:(id)sender {
+    [self subOneAudio];
+}
+- (IBAction)AdjustSubThreeTwoAudio:(id)sender {
+     [self subTwoAudio];
+}
+- (IBAction)AdjustSubThreeThreeAudio:(id)sender {
+    [self subThreeAudio];
+}
+- (IBAction)AdjustSubFourOneAudio:(id)sender {
+    [self subOneAudio];
+}
+- (IBAction)AdjustSubFourTwoAudio:(id)sender {
+     [self subTwoAudio];
+}
+- (IBAction)AdjustSubFourThreeAudio:(id)sender {
+     [self subThreeAudio];
+}
+- (IBAction)AdjustSubFourFourAudio:(id)sender {
+    [self subFourAudio];
+}
 
-bool isSameOrientation=YES;
+-(void)subOneAudio
+{
+    if(sub1.subscribeToAudio==YES){
+        sub1.subscribeToAudio=NO;
+        if(keys.count==1){[self subOneOneAudioButtonDisable];}else if(keys.count==2){ [self subTwoOneAudioButtonDisable];}else if(keys.count==3){ [self subThreeOneAudioDisable]; }else{[self subFourOneAudioDisable];};
+    }else{
+        sub1.subscribeToAudio=YES;
+        if(keys.count==1){ [self subOneOneAudioButtonEnable];}else if(keys.count==2){ [self subTwoOneAudioButtonEnable];}else if(keys.count==3){[self subThreeOneAudioEnable];}else{ [self subFourOneAudioEnable];}
+    }
+}
+-(void)subTwoAudio
+{
+    if(sub2.subscribeToAudio==YES){
+        sub2.subscribeToAudio=NO;
+        if(keys.count==2){[self subTwoTwoAudioButtonDisable];}else if(keys.count==3){[self subThreeTwoAudioDisable];}else{[self subFourTwoAudioDisable];}
+    }else{
+        sub2.subscribeToAudio=YES;
+        if(keys.count==2){[self subTwoTwoAudioButtonEnable];}else if(keys.count==3){[self subThreeTwoAudioEnable];}else{ [self subFourTwoAudioEnable]; }
+    }
+}
+-(void)subThreeAudio
+{
+    if(sub3.subscribeToAudio==YES){
+        sub3.subscribeToAudio=NO;
+        if(keys.count==3){[self subThreeThreeAudioDisable];}else{[self subFourThreeAudioDisable];}
+    }else{
+        sub3.subscribeToAudio=YES;
+         if(keys.count==3){[self subThreeThreeAudioEnable];}else{ [self subFourThreeAudioEnable]; }
+    }
+}
+
+-(void)subFourAudio
+{
+    if(sub4.subscribeToAudio==YES){
+        sub4.subscribeToAudio=NO;
+        [self subFourFourAudioDisable];
+    }else{
+        sub4.subscribeToAudio=YES;
+        [self subFourFourAudioEnable];
+    }
+}
+
+
+-(void)moveObject:(UIPanGestureRecognizer *)pan;
+{
+    _publisherView.center = [pan locationInView:_publisherView.superview];
+    _publisherDeaultImage.center=[pan locationInView:_publisherDeaultImage.superview];
+}
+
 - (void) orientationChanged:(NSNotification *)note
 {
     UIDeviceOrientation Orientation=[[UIDevice currentDevice]orientation];
@@ -159,22 +298,13 @@ bool isSameOrientation=YES;
     if(Orientation==UIDeviceOrientationLandscapeLeft || Orientation==UIDeviceOrientationLandscapeRight)
     {
          [self checkSubscribersList];
-        
-        
     }
     else if(Orientation==UIDeviceOrientationPortrait)
     {
           [self checkSubscribersList];
     }
-   }//sessiondisconnect condition
-   /* NSLog(@"--------fixed--------");
-   // UIDevice * device = note.object;
-    if(sessionDisconnect==NO){
-    
-    }else{
-        return;
-    }*/
-}
+  }//sessiondisconnect condition
+}//orientationChanged
 
 -(void)checkSubscribersList{
     if(_allSubscribers.count>0){
@@ -182,7 +312,7 @@ bool isSameOrientation=YES;
     }
 }
 
-/*cam swipe*/
+/*cam swape*/
 - (IBAction)swapCam:(id)sender {
     NSLog(@"swipe cliked");
     if (_publisher.cameraPosition == AVCaptureDevicePositionBack) {
@@ -213,34 +343,37 @@ NSTimer *timer;
         self.timer.text= [NSString stringWithFormat:@"%02d:%02d:%02d", hour, minut, sec];
         
     }else{
-        if (_session) {
             // disconnect session
             NSLog(@"disconnecting....");
-            [timer invalidate];
-            timer = nil;
-            [_session disconnect:nil];
+        
+        [self destroyAll];
+        [timer invalidate];
+        timer = nil;
+        [_session disconnect:nil];
+        [self dismissViewControllerAnimated:YES completion:nil];
+        [UIApplication sharedApplication].idleTimerDisabled = NO;
+        /*  [_session disconnect:nil];
             [self cleanupPublisher];
             [self cleanupSubscriber];
             [self dismissViewControllerAnimated:YES completion:nil];
             [UIApplication sharedApplication].idleTimerDisabled = NO;
-            return;
-        }
+            return;*/
+    
     }
     
 }//updateCountdown
 - (void)showReconnectingAlert
 {
-    [self showAlertWithMessage:@"Session is reconnecting"
+  /*  [self showAlertWithMessage:@"Session is reconnecting"
                          title:@""
-            showDissmissButton:NO];
+            showDissmissButton:YES];*/
+    [self.sessionReconnectingMsgLabel setHidden:NO];
 }
 
 
 - (void)dismissReconnectingAlert
 {
-    if (self.alert) {
-        [self.alert dismissViewControllerAnimated:YES completion:nil];
-    }
+    [self.sessionReconnectingMsgLabel setHidden:YES];
 }
 
 - (void)sessionDidBeginReconnecting:(OTSession *)session
@@ -253,7 +386,7 @@ NSTimer *timer;
     [self dismissReconnectingAlert];
 }
 
-/*---showAlertWithMessage---*/
+/*---showAlertWithMessage---
 - (void)showAlertWithMessage:(NSString *)message
                        title:(NSString *)title
           showDissmissButton:(BOOL)showButton
@@ -276,7 +409,7 @@ NSTimer *timer;
            
        });
    
-}//showAlertWithMessage
+}//showAlertWithMessage */
 
 
 - (void)setupSession
@@ -308,27 +441,28 @@ NSTimer *timer;
 }
 
 
-
 // View Tapped When Hide Back and BottomView
 - (void)viewTappedInLive:(UITapGestureRecognizer *)tgr {
     
     if (!isFullScreen) {
         [self.view layoutIfNeeded];
-        [self.bottomView setHidden:YES];
-        self.bottomViewHeight.constant = 0;
+       //self.bottomViewHeight.constant = 0;
         [UIView animateWithDuration:0.5
                          animations:^{
-                             [self.view layoutIfNeeded]; // Called on parent view
+                              [self.bottomView setHidden:YES];//[self.view layoutIfNeeded]; // Called on parent view
+                              [self setHideAndShowAudioButtons:true];
+                              [self.timer setHidden:YES];
                          }];
         
         isFullScreen = YES;
     }else{
         [self.view layoutIfNeeded];
-        [self.bottomView setHidden:NO];
-        self.bottomViewHeight.constant = 50;
+        //self.bottomViewHeight.constant = 50;
         [UIView animateWithDuration:.5
                          animations:^{
-                             [self.view layoutIfNeeded]; // Called on parent view
+                            [self.bottomView setHidden:NO];//   [self.view layoutIfNeeded]; // Called on parent view
+                            [self setHideAndShowAudioButtons:false];
+                             [self.timer setHidden:NO];
                          }];
         isFullScreen = NO;
     }
@@ -361,6 +495,24 @@ NSTimer *timer;
         if (self.overlayTimer) {
             [self.overlayTimer invalidate];
         }
+    }
+}
+
+-(void)setHideAndShowAudioButtons:(BOOL *)value{
+    if(keys.count==1){
+        [self.subscriberOneAudioAdjustBtn setHidden:value];
+    }else if (keys.count==2){
+        [self.subTwoOneAudioAdjustBtn setHidden:value];
+        [self.subTwoTwoAudioAdjustBtn setHidden:value];
+    }else if(keys.count==3){
+        [self.subThreeOneAudioAdjustBtn setHidden:value];
+        [self.subThreeTwoAudioAdjustBtn setHidden:value];
+        [self.subThreeThreeAudioAdjustBtn setHidden:value];
+    }else if(keys.count==4){
+        [self.subFourOneAudioAdjustBtn setHidden:value];
+        [self.subFourTwoAudioAdjustBtn setHidden:value];
+        [self.subFourThreeAudioAdjustBtn setHidden:value];
+        [self.subFourFourAudioAdjustBtn setHidden:value];
     }
 }
 
@@ -398,20 +550,24 @@ NSTimer *timer;
 
 - (void)sessionDidDisconnect:(OTSession *)session {
     sessionDisconnect=YES;
-   // [self.messegeForUser setHidden:NO];
+   /* [self.messegeForUser setHidden:NO];
     NSString* alertMessage =
     [NSString stringWithFormat:@"Session disconnected: (%@)",
      session.sessionId];
-    NSLog(@"sessionDidDisconnect (%@)", alertMessage);
+   // NSLog(@"sessionDidDisconnect (%@)", alertMessage);*/
+    [self destroyAll];
+}
+
+-(void) destroyAll
+{
     [_session disconnect:nil];
     [self dismissViewControllerAnimated:YES completion:nil];
     [UIApplication sharedApplication].idleTimerDisabled = NO;
+    [self cleanupPublisher];
     [_allSubscribers removeAllObjects];
     [_allStreams removeAllObjects];
-     return;
-    
+    return;
 }
-
 - (void)sessionDidConnect:(OTSession *)session {
     
     // now publish
@@ -547,50 +703,145 @@ NSArray *keys;
     if(keys.count==1){
         sub1=[ _allSubscribers objectForKey:keys[0]];
         if(sub1.stream.hasVideo){[self.defaultimage setHidden:YES];}else{[self.defaultimage setHidden:NO];}
+        if(sub1.subscribeToAudio==YES){ [self subOneOneAudioButtonEnable]; }else{[self subOneOneAudioButtonDisable];}
         [sub1.view setFrame:CGRectMake(0, 0 ,self.subscriberView.frame.size.width ,self.subscriberView.frame.size.height)];
         [self.subscriberView addSubview:sub1.view];
+        [self.subscriberOneAudioAdjustBtn setHidden:NO];
     }else if(keys.count==2){
         sub1=[ _allSubscribers objectForKey:keys[0]];
         if(sub1.stream.hasVideo){[self.subTwoLayerOneDefaultImage setHidden:YES];}else{[self.subTwoLayerOneDefaultImage setHidden:NO];}
+        if(sub1.subscribeToAudio==YES){[self subTwoOneAudioButtonEnable];}else{ [self subTwoOneAudioButtonDisable];}
         [sub1.view setFrame:CGRectMake(0, 0 ,self.subscriberViewTwo1.frame.size.width ,self.subscriberViewTwo1.frame.size.height)];
         [self.subscriberViewTwo1 addSubview:sub1.view];
         sub2=[ _allSubscribers objectForKey:keys[1]];
         if(sub2.stream.hasVideo){[self.subTwoLayerTwoDefaultImage setHidden:YES];}else{ [self.subTwoLayerTwoDefaultImage setHidden:NO];}
+        if(sub2.subscribeToAudio==YES){ [self subTwoTwoAudioButtonEnable]; }else{   [self subTwoTwoAudioButtonDisable];}
         [sub2.view setFrame:CGRectMake(0, 0 ,self.subscriberViewtwo2.frame.size.width ,self.subscriberViewtwo2.frame.size.height)];
         [self.subscriberViewtwo2 addSubview:sub2.view];
     }else if(keys.count==3){
-        sub1=[ _allSubscribers objectForKey:keys[0]];
+        sub1=[_allSubscribers objectForKey:keys[0]];
         if(sub1.stream.hasVideo){[self.subThreeLayerDefaultImg1 setHidden:YES];}else{ [self.subThreeLayerDefaultImg1 setHidden:NO];}
+        if(sub1.subscribeToAudio==YES){[self subThreeOneAudioEnable];}else{ [self subThreeOneAudioDisable]; } //audio
         [sub1.view setFrame:CGRectMake(0, 0 ,self.subscriberThree1.frame.size.width ,self.subscriberThree1.frame.size.height)];
         [self.subscriberThree1 addSubview:sub1.view];
         sub2=[ _allSubscribers objectForKey:keys[1]];
         if(sub2.stream.hasVideo){[self.subThreeLayerDefaultImg2 setHidden:YES]; }else{[self.subThreeLayerDefaultImg2 setHidden:NO];}
+        if(sub2.subscribeToAudio==YES){[self subThreeTwoAudioEnable];}else{[self subThreeTwoAudioDisable];}
         [sub2.view setFrame:CGRectMake(0, 0 ,self.subscriberThree2.frame.size.width ,self.subscriberThree2.frame.size.height)];
         [self.subscriberThree2 addSubview:sub2.view];
         sub3=[ _allSubscribers objectForKey:keys[2]];
         if(sub3.stream.hasVideo){[self.subThreeLayerDefaultImg3 setHidden:YES];}else{[self.subThreeLayerDefaultImg3 setHidden:NO];}
+        if(sub3.subscribeToAudio==YES){ [self subThreeThreeAudioEnable]; }else{ [self subThreeThreeAudioDisable];}
         [sub3.view setFrame:CGRectMake(0, 0 ,self.subscriberThree3.frame.size.width ,self.subscriberThree3.frame.size.height)];
         [self.subscriberThree3 addSubview:sub3.view];
     }else if(keys.count==4){
+        //[self hideAudioButtons];
         sub1=[ _allSubscribers objectForKey:keys[0]];
         if(sub1.stream.hasVideo){[self.subFourLayerDefault1 setHidden:YES]; }else{[self.subFourLayerDefault1 setHidden:NO]; }
         [sub1.view setFrame:CGRectMake(0, 0 ,self.subscriberFour1.frame.size.width ,self.subscriberFour1.frame.size.height)];
         [self.subscriberFour1 addSubview:sub1.view];
+        if(sub1.subscribeToAudio==YES){[self subFourOneAudioEnable];}else{[self subFourOneAudioDisable];}
         sub2=[ _allSubscribers objectForKey:keys[1]];
         if(sub2.stream.hasVideo){[self.subFourLayerDefault2 setHidden:YES]; }else{[self.subFourLayerDefault2 setHidden:NO]; }
         [sub2.view setFrame:CGRectMake(0, 0 ,self.subscriberFour2.frame.size.width ,self.subscriberFour2.frame.size.height)];
         [self.subscriberFour2 addSubview:sub2.view];
+        if(sub2.subscribeToAudio==YES){[self subFourTwoAudioEnable];}else{[self subFourTwoAudioDisable];}
         sub3=[ _allSubscribers objectForKey:keys[2]];
         if(sub3.stream.hasVideo){[self.subFourLayerDefault3 setHidden:YES]; }else{[self.subFourLayerDefault3 setHidden:NO]; }
         [sub3.view setFrame:CGRectMake(0, 0 ,self.subscriberFour3.frame.size.width ,self.subscriberFour3.frame.size.height)];
         [self.subscriberFour3 addSubview:sub3.view];
+         if(sub3.subscribeToAudio==YES){[self subFourThreeAudioEnable];}else{[self subFourThreeAudioDisable];}
         sub4=[ _allSubscribers objectForKey:keys[3]];
         if(sub4.stream.hasVideo){[self.subFourLayerDefault4 setHidden:YES]; }else{[self.subFourLayerDefault4 setHidden:NO]; }
         [sub4.view setFrame:CGRectMake(0, 0 ,self.subscriberFour4.frame.size.width ,self.subscriberFour4.frame.size.height)];
         [self.subscriberFour4 addSubview:sub4.view];
+         if(sub4.subscribeToAudio==YES){[self subFourFourAudioEnable];}else{[self subFourFourAudioDisable];}
     }
 }//shuffle
 
+
+
+
+-(void) subOneOneAudioButtonEnable
+{
+    [self.subscriberOneAudioAdjustBtn setImage:[UIImage imageNamed:@"audio"] forState:UIControlStateNormal];
+}
+-(void) subOneOneAudioButtonDisable
+{
+    [self.subscriberOneAudioAdjustBtn setImage:[UIImage imageNamed:@"noAudio"] forState:UIControlStateNormal];
+}
+-(void) subTwoOneAudioButtonEnable
+{
+    [self.subTwoOneAudioAdjustBtn setImage:[UIImage imageNamed:@"audio"] forState:UIControlStateNormal];
+}
+-(void) subTwoTwoAudioButtonEnable
+{
+    [self.subTwoTwoAudioAdjustBtn setImage:[UIImage imageNamed:@"audio"] forState:UIControlStateNormal];
+}
+-(void) subTwoOneAudioButtonDisable
+{
+    [self.subTwoOneAudioAdjustBtn setImage:[UIImage imageNamed:@"noAudio"] forState:UIControlStateNormal];
+}
+-(void) subTwoTwoAudioButtonDisable
+{
+     [self.subTwoTwoAudioAdjustBtn setImage:[UIImage imageNamed:@"noAudio"] forState:UIControlStateNormal];
+}
+-(void) subThreeOneAudioEnable
+{
+     [self.subThreeOneAudioAdjustBtn setImage:[UIImage imageNamed:@"audio"] forState:UIControlStateNormal];
+}
+-(void) subThreeTwoAudioEnable
+{
+     [self.subThreeTwoAudioAdjustBtn setImage:[UIImage imageNamed:@"audio"] forState:UIControlStateNormal];
+}
+-(void) subThreeThreeAudioEnable
+{
+    [self.subThreeThreeAudioAdjustBtn setImage:[UIImage imageNamed:@"audio"] forState:UIControlStateNormal];
+}
+-(void) subThreeOneAudioDisable
+{
+     [self.subThreeOneAudioAdjustBtn setImage:[UIImage imageNamed:@"noAudio"] forState:UIControlStateNormal];
+}
+-(void) subThreeTwoAudioDisable
+{
+     [self.subThreeTwoAudioAdjustBtn setImage:[UIImage imageNamed:@"noAudio"] forState:UIControlStateNormal];
+}
+-(void) subThreeThreeAudioDisable
+{
+    [self.subThreeThreeAudioAdjustBtn setImage:[UIImage imageNamed:@"noAudio"] forState:UIControlStateNormal];
+}
+-(void) subFourOneAudioEnable
+{
+     [self.subFourOneAudioAdjustBtn setImage:[UIImage imageNamed:@"audio"] forState:UIControlStateNormal];
+}
+-(void) subFourTwoAudioEnable
+{
+    [self.subFourTwoAudioAdjustBtn setImage:[UIImage imageNamed:@"audio"] forState:UIControlStateNormal];
+}
+-(void) subFourThreeAudioEnable
+{
+     [self.subFourThreeAudioAdjustBtn setImage:[UIImage imageNamed:@"audio"] forState:UIControlStateNormal];
+}
+-(void) subFourFourAudioEnable
+{
+    [self.subFourFourAudioAdjustBtn setImage:[UIImage imageNamed:@"audio"] forState:UIControlStateNormal];
+}
+-(void) subFourOneAudioDisable
+{
+     [self.subFourOneAudioAdjustBtn setImage:[UIImage imageNamed:@"noAudio"] forState:UIControlStateNormal];
+}
+-(void) subFourTwoAudioDisable
+{
+    [self.subFourTwoAudioAdjustBtn setImage:[UIImage imageNamed:@"noAudio"] forState:UIControlStateNormal];
+}
+-(void) subFourThreeAudioDisable
+{
+     [self.subFourThreeAudioAdjustBtn setImage:[UIImage imageNamed:@"noAudio"] forState:UIControlStateNormal];
+}
+-(void) subFourFourAudioDisable
+{
+    [self.subFourFourAudioAdjustBtn setImage:[UIImage imageNamed:@"noAudio"] forState:UIControlStateNormal];
+}
 
 
 - (void)subscriber:(OTSubscriber *)subscriber didFailWithError:(OTError *)error
@@ -702,13 +953,14 @@ int indexValue;
     if (_session) {
         // disconnect session
         NSLog(@"disconnecting....");
-        [_session disconnect:nil];
+        [self destroyAll];
+        /* [_session disconnect:nil];
         [self cleanupPublisher];
         [self cleanupSubscriber];
         [self dismissViewControllerAnimated:YES completion:nil];
         [UIApplication sharedApplication].idleTimerDisabled = NO;
         _allSubscribers=nil;
-        return;
+        return;*/
     }
 }
 - (IBAction)toggleVideo:(id)sender {
@@ -741,7 +993,7 @@ connectionDestroyed:(OTConnection *)connection
             // [self.messegeForUser setHidden:NO];
     NSLog(@"session connectionDestroyed (%@)", connection.data);
    
-    if(_allSubscribers.count==0){[_messegeForUser setHidden:NO];}
+    if(_allSubscribers.count==0){[_messegeForUser setHidden:NO]; [self.defaultimage setHidden:YES]; [self.subscriberOneAudioAdjustBtn setHidden:YES];}
     if(_allSubcribersPresentVideos.count>0){
         [_allSubcribersPresentVideos removeObjectForKey:connection.connectionId];
     }
