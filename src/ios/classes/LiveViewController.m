@@ -81,6 +81,7 @@ OTPublisherDelegate,UIGestureRecognizerDelegate>
 @property (weak, nonatomic) IBOutlet UIButton *subFourThreeAudioAdjustBtn;
 @property (weak, nonatomic) IBOutlet UIButton *subFourFourAudioAdjustBtn;
 
+@property UIBackgroundTaskIdentifier backgroundUpdateTask;
 
 - (void)showReconnectingAlert;
 - (void)dismissReconnectingAlert;
@@ -104,6 +105,8 @@ NSArray *audioButtons;
 bool sessionDisconnect=NO;
 - (void)viewDidLoad {
     [super viewDidLoad];
+    [self beginBackgroundUpdateTask];
+    [self requestPermissions];
     [UIApplication sharedApplication].idleTimerDisabled = YES;
     [self setHidden];
     buttons=[NSArray arrayWithObjects:_exitBtn,_audioSubUnsubButton,_videoSubUnsubButton,_swapCameraButton,nil];
@@ -159,7 +162,115 @@ bool sessionDisconnect=NO;
     self.view.userInteractionEnabled = YES;
     [self.view addGestureRecognizer:tgr];
     
+}//view controller
+
+- (void) beginBackgroundUpdateTask
+{
+    self.backgroundUpdateTask = [[UIApplication sharedApplication] beginBackgroundTaskWithExpirationHandler:^{
+        //  [self endBackgroundUpdateTask];
+    }];
 }
+- (void) endBackgroundUpdateTask
+{
+    [[UIApplication sharedApplication] endBackgroundTask: self.backgroundUpdateTask];
+    self.backgroundUpdateTask = UIBackgroundTaskInvalid;
+}
+
+
+
+-(void)requestPermissions
+{
+    AVAuthorizationStatus _cameraAuthorizationStatus = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
+    switch (_cameraAuthorizationStatus)
+    {
+        case AVAuthorizationStatusNotDetermined:
+        {
+            NSLog(@"%@", @"Camera access not determined. Ask for permission.");
+            
+            [AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo completionHandler:^(BOOL granted)
+             {
+                 if(granted)
+                 {
+                     NSLog(@"Granted access to %@", AVMediaTypeVideo);
+                     
+                 }
+                 else
+                 {
+                     dispatch_async( dispatch_get_main_queue(), ^{
+                         [self accessDynamicpermissons:@"camera"];
+                     });
+                     NSLog(@"Not granted access to %@", AVMediaTypeVideo);
+                     // *** Camera access rejected by user, perform respective action ***
+                 }
+             }];
+        }
+            break;
+        case AVAuthorizationStatusRestricted:
+        case AVAuthorizationStatusDenied:
+        {
+            // Prompt for not authorized message & provide option to navigate to settings of app.
+            dispatch_async( dispatch_get_main_queue(), ^{
+                [self accessDynamicpermissons:@"camera"];
+            });
+        }
+            break;
+        default:
+            break;
+    }
+    
+    AVAudioSessionRecordPermission permissionStatus = [[AVAudioSession sharedInstance] recordPermission];
+    
+    switch (permissionStatus) {
+        case AVAudioSessionRecordPermissionUndetermined:{
+            [[AVAudioSession sharedInstance] requestRecordPermission:^(BOOL granted) {
+                // CALL YOUR METHOD HERE - as this assumes being called only once from user interacting with permission alert!
+                if (granted) {
+                    
+                }
+                else {
+                    // Microphone disabled code
+                    dispatch_async( dispatch_get_main_queue(), ^{
+                        [self accessDynamicpermissons:@"Microphone"];
+                    });
+                }
+            }];
+            break;
+        }
+        case AVAudioSessionRecordPermissionDenied:{
+            dispatch_async( dispatch_get_main_queue(), ^{
+                [self accessDynamicpermissons:@"Microphone"];
+            });
+            break;
+        }
+        case AVAudioSessionRecordPermissionGranted: {
+            
+            break;
+        }
+    }
+}
+-(void) accessDynamicpermissons:(NSString *)type{
+    
+    NSString *message;
+    if([type isEqual:@"Microphone"]){
+        message = NSLocalizedString( @"Fitbase doesn't have permission to use the Microphone, please change privacy settings", @"Alert message when the user has denied access to the microphone" );
+    }else{
+        message = NSLocalizedString( @"Fitbase doesn't have permission to use the camera, please change privacy settings", @"Alert message when the user has denied access to the camera" );
+    }
+    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"Fitbase" message:message preferredStyle:UIAlertControllerStyleAlert];
+    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:NSLocalizedString( @"Cancel", @"Alert OK button" ) style:UIAlertActionStyleDefault handler:^( UIAlertAction *action ) {
+        [self destroyAll];
+    }];
+    [alertController addAction:cancelAction];
+    // Provide quick access to Settings.
+    UIAlertAction *settingsAction = [UIAlertAction actionWithTitle:NSLocalizedString( @"Settings", @"Alert button to open Settings" ) style:UIAlertActionStyleDefault handler:^( UIAlertAction *action ) {
+        [[UIApplication sharedApplication] openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString]];
+    }];
+    [alertController addAction:settingsAction];
+    [self presentViewController:alertController animated:YES completion:nil];
+}
+
+
+
 -(void)setBorderForAudioButtons{
     for (int i=0;i<audioButtons.count;i++) {
         UIButton* uibutton= [audioButtons objectAtIndex:i];
@@ -446,12 +557,11 @@ NSTimer *timer;
     
     if (!isFullScreen) {
         [self.view layoutIfNeeded];
-       //self.bottomViewHeight.constant = 0;
         [UIView animateWithDuration:0.5
                          animations:^{
                               [self.bottomView setHidden:YES];//[self.view layoutIfNeeded]; // Called on parent view
                               [self setHideAndShowAudioButtons:true];
-                              [self.timer setHidden:YES];
+                             if(keys.count==1){ [self.subscriberOneAudioAdjustBtn setHidden:YES];  }
                          }];
         
         isFullScreen = YES;
@@ -462,7 +572,7 @@ NSTimer *timer;
                          animations:^{
                             [self.bottomView setHidden:NO];//   [self.view layoutIfNeeded]; // Called on parent view
                             [self setHideAndShowAudioButtons:false];
-                             [self.timer setHidden:NO];
+                             if(keys.count==1){[self.subscriberOneAudioAdjustBtn setHidden:NO];}
                          }];
         isFullScreen = NO;
     }
@@ -562,6 +672,7 @@ NSTimer *timer;
 {
     [_session disconnect:nil];
     [self dismissViewControllerAnimated:YES completion:nil];
+    [self endBackgroundUpdateTask];
     [UIApplication sharedApplication].idleTimerDisabled = NO;
     [self cleanupPublisher];
     [_allSubscribers removeAllObjects];
