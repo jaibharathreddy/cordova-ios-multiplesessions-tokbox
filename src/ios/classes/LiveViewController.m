@@ -17,30 +17,22 @@ static NSString *const kSessionId = @"2_MX40NjAzMzI0Mn5-MTUxNTE1OTI1MTgxNX41TVVV
 static NSString *const kToken = @"T1==cGFydG5lcl9pZD00NjAzMzI0MiZzaWc9N2VmNmYzNTViMTEyNzFjN2E0YTc0ZGI2YzIyOTE4OWZhMjRmYjc1NjpzZXNzaW9uX2lkPTJfTVg0ME5qQXpNekkwTW41LU1UVXhOVEUxT1RJMU1UZ3hOWDQxVFZWVldqQmFWWFJJUkhOcVpHSlVhV294WTBaak5EQi1mZyZjcmVhdGVfdGltZT0xNTE1MjQwODIyJm5vbmNlPTAuMTQzNzU0NTY3OTYyODc1MzMmcm9sZT1tb2RlcmF0b3ImZXhwaXJlX3RpbWU9MTUxNzgzMjgyMSZpbml0aWFsX2xheW91dF9jbGFzc19saXN0PQ==";
 
 @interface LiveViewController ()<OTSessionDelegate, OTSubscriberKitDelegate,
-OTPublisherDelegate,UIGestureRecognizerDelegate>
+OTPublisherDelegate,UIGestureRecognizerDelegate,UIScrollViewDelegate>
 {
     OTSession *_session;
     OTPublisher *_publisher;
     OTSubscriber *_currentSubscriber;
-    BOOL isFullScreen;
+    //BOOL isFullScreen;
 }
-@property (weak, nonatomic) IBOutlet UIView *publisherView;
-@property (strong, nonatomic) IBOutlet NSLayoutConstraint *bottomViewHeight;
-@property (weak, nonatomic) IBOutlet UIView *bottomView;
+@property (weak, nonatomic) IBOutlet UIButton *audioBTNOne;
+@property (weak, nonatomic) IBOutlet UIButton *audioBTNTwo;
+@property (weak, nonatomic) IBOutlet UIButton *audioBTNThree;
+@property (weak, nonatomic) IBOutlet UIButton *audioBTNFour;
 
-@property (weak, nonatomic) IBOutlet UIView *subscriberView;
-@property (weak, nonatomic) IBOutlet UIView *subscribersViewTwoLayout;
-@property (weak, nonatomic) IBOutlet UIView *subscriberViewTwo1;
-@property (weak, nonatomic) IBOutlet UIView *subscriberViewtwo2;
-@property (weak, nonatomic) IBOutlet UIView *subscriberViewsFourLayout;
-@property (weak, nonatomic) IBOutlet UIView *subscriberFour1;
-@property (weak, nonatomic) IBOutlet UIView *subscriberFour2;
-@property (weak, nonatomic) IBOutlet UIView *subscriberFour3;
-@property (weak, nonatomic) IBOutlet UIView *subscriberFour4;
-@property (weak, nonatomic) IBOutlet UIView *subscriberViewsThreeLayout;
-@property (weak, nonatomic) IBOutlet UIView *subscriberThree1;
-@property (weak, nonatomic) IBOutlet UIView *subscriberThree2;
-@property (weak, nonatomic) IBOutlet UIView *subscriberThree3;
+
+
+@property (weak, nonatomic) IBOutlet UIView *publisherView;
+
 @property (strong, nonatomic) IBOutlet UIButton *exitBtn;
 @property (weak, nonatomic) IBOutlet UIButton *swapCameraButton;
 
@@ -48,46 +40,31 @@ OTPublisherDelegate,UIGestureRecognizerDelegate>
 @property (strong, nonatomic) IBOutlet UIButton *videoSubUnsubButton;
 @property (weak, nonatomic) IBOutlet UIActivityIndicatorView *activityIndicator;
 
-@property (weak, nonatomic) IBOutlet UIImageView *defaultimage;
+
 @property (weak, nonatomic) IBOutlet UIImageView *publisherDeaultImage;
-@property (weak, nonatomic) IBOutlet UIImageView *subTwoLayerOneDefaultImage;
-@property (weak, nonatomic) IBOutlet UIImageView *subTwoLayerTwoDefaultImage;
+
 
 
 @property (strong, nonatomic) NSTimer *overlayTimer;
 @property (nonatomic, strong) UIAlertController *alert;
-@property (weak, nonatomic) IBOutlet UIImageView *subThreeLayerDefaultImg1;
-@property (weak, nonatomic) IBOutlet UIImageView *subThreeLayerDefaultImg2;
-@property (weak, nonatomic) IBOutlet UIImageView *subThreeLayerDefaultImg3;
-@property (weak, nonatomic) IBOutlet UIImageView *subFourLayerDefault1;
-@property (weak, nonatomic) IBOutlet UIImageView *subFourLayerDefault2;
-@property (weak, nonatomic) IBOutlet UIImageView *subFourLayerDefault3;
-@property (weak, nonatomic) IBOutlet UIImageView *subFourLayerDefault4;
-
 
 @property (weak, nonatomic) IBOutlet UILabel *sessionReconnectingMsgLabel;
 
-@property (weak, nonatomic) IBOutlet UIButton *subscriberOneAudioAdjustBtn;
-
-@property (weak, nonatomic) IBOutlet UIButton *subTwoOneAudioAdjustBtn;
-@property (weak, nonatomic) IBOutlet UIButton *subTwoTwoAudioAdjustBtn;
-
-@property (weak, nonatomic) IBOutlet UIButton *subThreeThreeAudioAdjustBtn;
-@property (weak, nonatomic) IBOutlet UIButton *subThreeTwoAudioAdjustBtn;
-@property (weak, nonatomic) IBOutlet UIButton *subThreeOneAudioAdjustBtn;
-
-@property (weak, nonatomic) IBOutlet UIButton *subFourOneAudioAdjustBtn;
-@property (weak, nonatomic) IBOutlet UIButton *subFourTwoAudioAdjustBtn;
-@property (weak, nonatomic) IBOutlet UIButton *subFourThreeAudioAdjustBtn;
-@property (weak, nonatomic) IBOutlet UIButton *subFourFourAudioAdjustBtn;
 
 @property UIBackgroundTaskIdentifier backgroundUpdateTask;
+@property (weak, nonatomic) IBOutlet UIView *scrollContainerView;
+@property (weak, nonatomic) IBOutlet UIScrollView *scrollView;
+@property (weak, nonatomic) IBOutlet UIButton *changeViewButton;
+@property (weak, nonatomic) IBOutlet UIView *topToolBar;
+@property (weak, nonatomic) IBOutlet UIButton *muteUnmuteAllButton;
+@property (weak, nonatomic) IBOutlet UIButton *scrollContainerAudioBtn;
+
+@property (weak, nonatomic) IBOutlet UIView *mainContainerView;
+
+
 
 - (void)showReconnectingAlert;
 - (void)dismissReconnectingAlert;
-/*- (void)showAlertWithMessage:(NSString *)message
-                       title:(NSString *)title
-          showDissmissButton:(BOOL)showButton;*/
 @property (weak, nonatomic) IBOutlet UILabel *timer;
 @property (weak, nonatomic) IBOutlet UILabel *messegeForUser;
 @property NSMutableDictionary *allSubscribers;//
@@ -97,24 +74,34 @@ OTPublisherDelegate,UIGestureRecognizerDelegate>
 @end
 
 @implementation LiveViewController
+NSMutableArray *keys;
 double countDownTimerMilliSeconds;
 NSString *comingView;
 int groupSize;
 NSArray *buttons;
 NSArray *audioButtons;
 bool sessionDisconnect=NO;
+float initialYaxisScroll;
+float afterIconsOnYaxis;
+Boolean changeveiw;
+bool tapped=YES;
 - (void)viewDidLoad {
     [super viewDidLoad];
     [self beginBackgroundUpdateTask];
     [self requestPermissions];
     [UIApplication sharedApplication].idleTimerDisabled = YES;
-    [self setHidden];
+    [self.topToolBar setHidden:YES];
+    [self.scrollContainerAudioBtn setHidden:YES];
+    changeveiw=true;
+    [self setHiddenContainerView: true];
     buttons=[NSArray arrayWithObjects:_exitBtn,_audioSubUnsubButton,_videoSubUnsubButton,_swapCameraButton,nil];
-    audioButtons=[NSArray arrayWithObjects:_subscriberOneAudioAdjustBtn,_subTwoOneAudioAdjustBtn,_subTwoTwoAudioAdjustBtn,_subThreeThreeAudioAdjustBtn,_subThreeTwoAudioAdjustBtn,_subThreeOneAudioAdjustBtn,_subFourOneAudioAdjustBtn,_subFourTwoAudioAdjustBtn,_subFourThreeAudioAdjustBtn,_subFourFourAudioAdjustBtn, nil];
+    audioButtons=[NSArray arrayWithObjects:_audioBTNOne,_audioBTNTwo,_audioBTNThree,_audioBTNFour,nil];
     [self setBorderForAudioButtons];
+    [self setHiddenAll:true];
     _allSubscribers=[[NSMutableDictionary alloc] init];//initializing the variables
     _allStreams=[[NSMutableDictionary alloc] init];
     _allConnectionIds=[[NSMutableArray alloc] init];
+     keys=[[NSMutableArray alloc] init];
     _allSubcribersPresentVideos=[[NSMutableDictionary alloc] init];
     NSLocale* currentLocale = [NSLocale currentLocale];
     [[NSDate date] descriptionWithLocale:currentLocale];
@@ -142,11 +129,10 @@ bool sessionDisconnect=NO;
      selector:@selector(leavingBackgroundMode:)
      name:UIApplicationDidBecomeActiveNotification
      object:nil];
-    
-    
-    isFullScreen = NO;
+    //isFullScreen = NO;
     UIPanGestureRecognizer * pan1 = [[UIPanGestureRecognizer alloc]initWithTarget:self action:@selector(moveObject:)];
     pan1.minimumNumberOfTouches = 1;
+    _publisherView.tag=3;
     [_publisherView addGestureRecognizer:pan1];
     
     [[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
@@ -161,7 +147,7 @@ bool sessionDisconnect=NO;
     tgr.delegate = self;
     self.view.userInteractionEnabled = YES;
     [self.view addGestureRecognizer:tgr];
-    
+     [self overlayTimerSetUp];
 }//view controller
 
 - (void) beginBackgroundUpdateTask
@@ -290,118 +276,113 @@ bool sessionDisconnect=NO;
 }//buttonsBackground
 
 // Handling Background and foreground
-- (void)enteringBackgroundMode:(NSNotification*)notification
-{
+- (void)enteringBackgroundMode:(NSNotification*)notification{
     _publisher.publishVideo = NO;
+    
 }
-
-- (void)leavingBackgroundMode:(NSNotification*)notification
-{
+/*------leavingBackgroundMode-----*/
+- (void)leavingBackgroundMode:(NSNotification*)notification{
+     _publisher.publishVideo = YES;
      [self shuffle];
-    _publisher.publishVideo = YES;
-}
-- (void) setHidden
-{
-    [self.sessionReconnectingMsgLabel setHidden:YES];
-    [self.publisherDeaultImage setHidden:YES];
-    [self.defaultimage setHidden:YES];
-    [self.subscriberView setHidden:NO];
-    [self.subscribersViewTwoLayout setHidden:YES];
-    [self.subscriberViewsFourLayout setHidden:YES];
-    [self.subscriberViewsThreeLayout setHidden:YES];
-    [self.subFourLayerDefault1 setHidden:YES];
-    [self.subFourLayerDefault2 setHidden:YES];
-    [self.subFourLayerDefault3 setHidden:YES];
-    [self.subFourLayerDefault4 setHidden:YES];
-    [self.subThreeLayerDefaultImg1 setHidden:YES];
-    [self.subThreeLayerDefaultImg2 setHidden:YES];
-    [self.subThreeLayerDefaultImg3 setHidden:YES];
-    [self.subTwoLayerOneDefaultImage setHidden:YES];
-    [self.subTwoLayerTwoDefaultImage setHidden:YES];
-    [self.subscriberOneAudioAdjustBtn setHidden:YES];
+}//leavingBackgroundMode
+/*--setHiddenAll---*/
+- (void) setHiddenAll:(Boolean )value{
+    [self.publisherDeaultImage setHidden:value];
+    [self.sessionReconnectingMsgLabel setHidden:value];
+    [self hideAudioButtons:value];
 }//setHidden Function
-
-
-- (IBAction)AdjustSubOneAudio:(id)sender {
-    [self subOneAudio];
-}
-- (IBAction)AdjustSubTwoOneAudio:(id)sender {
-    [self subOneAudio];
-}
-- (IBAction)AdjustSubTwoTwoAudio:(id)sender {
-    [self subTwoAudio];
-}
-- (IBAction)AdjustSubThreeOneAudio:(id)sender {
-    [self subOneAudio];
-}
-- (IBAction)AdjustSubThreeTwoAudio:(id)sender {
-     [self subTwoAudio];
-}
-- (IBAction)AdjustSubThreeThreeAudio:(id)sender {
-    [self subThreeAudio];
-}
-- (IBAction)AdjustSubFourOneAudio:(id)sender {
-    [self subOneAudio];
-}
-- (IBAction)AdjustSubFourTwoAudio:(id)sender {
-     [self subTwoAudio];
-}
-- (IBAction)AdjustSubFourThreeAudio:(id)sender {
-     [self subThreeAudio];
-}
-- (IBAction)AdjustSubFourFourAudio:(id)sender {
-    [self subFourAudio];
-}
-
--(void)subOneAudio
-{
-    if(sub1.subscribeToAudio==YES){
-        sub1.subscribeToAudio=NO;
-        if(keys.count==1){[self subOneOneAudioButtonDisable];}else if(keys.count==2){ [self subTwoOneAudioButtonDisable];}else if(keys.count==3){ [self subThreeOneAudioDisable]; }else{[self subFourOneAudioDisable];};
+/*------hideAudioButtons-----*/
+-(void)hideAudioButtons:(Boolean )value{
+    [self.audioBTNOne setHidden:value];
+    [self.audioBTNTwo setHidden:value];
+    [self.audioBTNThree setHidden:value];
+    [self.audioBTNFour setHidden:value];
+}//hideAudioButtons
+/*-----setHiddenContainerView------*/
+-(void)setHiddenContainerView:(Boolean )value{
+    [self.scrollContainerView setHidden:value];
+    [self.scrollView setHidden:value];
+}//setHiddenContainerView
+/*----changeView----*/
+- (IBAction)changeView:(id)sender {
+    if(changeveiw){
+       // [self setHiddenAll:true];
+        [self setupScrollView];
+        [self setHiddenContainerView:false];
+        [self removeSubViewsInMaincontainerViwe];
+        changeveiw=false;
+        [_changeViewButton setImage:[UIImage imageNamed:@"gridView"] forState:UIControlStateNormal];
+        [self setUpPublisherFrame:_scrollView.frame.origin.y height:_scrollView.frame.size.height];
+        self.publisherView.layer.borderWidth=1;
+        self.publisherView.layer.borderColor=[[UIColor whiteColor] CGColor];
+        initialDefaultImgXaxis=102;
+        OTSubscriber *sub=[_allSubscribers objectForKey:keys[0]];
+        [self addViewMainScrollScontainer:sub tagValue:0];
+        [self shuffle];
     }else{
-        sub1.subscribeToAudio=YES;
-        if(keys.count==1){ [self subOneOneAudioButtonEnable];}else if(keys.count==2){ [self subTwoOneAudioButtonEnable];}else if(keys.count==3){[self subThreeOneAudioEnable];}else{ [self subFourOneAudioEnable];}
+        [self removeViewsFromRecycler];
+        self.publisherView.layer.borderWidth=0;
+         [_changeViewButton setImage:[UIImage imageNamed:@"galaryView"] forState:UIControlStateNormal];
+        [self setHiddenContainerView:true];
+        [self.scrollContainerAudioBtn setHidden:YES];
+        changeveiw=true;
+        [self shuffle];
     }
-}
--(void)subTwoAudio
-{
-    if(sub2.subscribeToAudio==YES){
-        sub2.subscribeToAudio=NO;
-        if(keys.count==2){[self subTwoTwoAudioButtonDisable];}else if(keys.count==3){[self subThreeTwoAudioDisable];}else{[self subFourTwoAudioDisable];}
-    }else{
-        sub2.subscribeToAudio=YES;
-        if(keys.count==2){[self subTwoTwoAudioButtonEnable];}else if(keys.count==3){[self subThreeTwoAudioEnable];}else{ [self subFourTwoAudioEnable]; }
-    }
-}
--(void)subThreeAudio
-{
-    if(sub3.subscribeToAudio==YES){
-        sub3.subscribeToAudio=NO;
-        if(keys.count==3){[self subThreeThreeAudioDisable];}else{[self subFourThreeAudioDisable];}
-    }else{
-        sub3.subscribeToAudio=YES;
-         if(keys.count==3){[self subThreeThreeAudioEnable];}else{ [self subFourThreeAudioEnable]; }
-    }
-}
-
--(void)subFourAudio
-{
-    if(sub4.subscribeToAudio==YES){
-        sub4.subscribeToAudio=NO;
-        [self subFourFourAudioDisable];
-    }else{
-        sub4.subscribeToAudio=YES;
-        [self subFourFourAudioEnable];
-    }
-}
-
-
+}//changeView
+/*------setupScrollView-----*/
+-(void)setupScrollView{
+    initialYaxisScroll=_scrollView.frame.origin.y;
+    afterIconsOnYaxis=_scrollContainerView.frame.size.height-_scrollView.frame.size.height;
+}//setupScrollView
+/*-------move publisher Object -----------*/
 -(void)moveObject:(UIPanGestureRecognizer *)pan;
 {
+    if(changeveiw){
     _publisherView.center = [pan locationInView:_publisherView.superview];
     _publisherDeaultImage.center=[pan locationInView:_publisherDeaultImage.superview];
-}
+    }
+}//moveObject
+/*---------enableAndDisableAllSubscriberAudios----------*/
+-(void)enableAndDisableAllSubscriberAudios:(Boolean )value{
+    if(changeveiw==false){ [self adjustSubscriberAudio:value subscriber:maincontainerSub button:_scrollContainerAudioBtn];}
+    for(int i=0;i<_allSubscribers.count;i++){
+        OTSubscriber *sub=[_allSubscribers objectForKey:keys[i]];
+            UIButton *button=(i==0)?_audioBTNOne:(i==1)?_audioBTNTwo:(i==2)? _audioBTNThree: _audioBTNFour;
+            [self adjustSubscriberAudio:value subscriber:sub button:button];
+    }
+}//enableAndDisableAllSubscriberAudios
 
+ -(void)tapOnScrollerViews:(UIPanGestureRecognizer *)pan;
+{
+    NSLog(@" -------%ld",pan.view.tag);
+    int index=(int)pan.view.tag;
+    int mainScrollViewConTag=(int)_scrollContainerView.tag;
+   
+    OTSubscriber * fistDefaultImgConSub=[_allSubscribers objectForKey:keys[mainScrollViewConTag]];
+    OTSubscriber * tappedSub=[_allSubscribers objectForKey:keys[index]];
+    maincontainerSub=nil;
+    [self addViewMainScrollScontainer:tappedSub tagValue:index];
+    [self addRecyclerView:fistDefaultImgConSub xAxis:initialDefaultImgXaxis tagValue:mainScrollViewConTag];
+    [self addRecyclerView:tappedSub xAxis:pan.view.frame.origin.x tagValue:index];
+    initialDefaultImgXaxis=pan.view.frame.origin.x;
+}
+/*------removeUIViewsFromScroller-------*/
+-(void)removeUIViewsFromScroller:(int )tag{
+    OTSubscriber * tappedSubscriberNew=[_allSubscribers objectForKey:keys[tag]];
+    UIView * viewToRemove=[self.view viewWithTag:tag];
+    float xAxis=viewToRemove.frame.origin.x;
+    [viewToRemove removeFromSuperview];
+    [self addViewMainScrollScontainer:tappedSubscriberNew tagValue:tag];
+    [self addRecyclerView:tappedSubscriberNew xAxis:xAxis tagValue:tag];
+}//removeUIViewsFromScroller
+
+/*-------------removeViewsFromRecycler--------*/
+-(void)removeViewsFromRecycler{
+    for(UIView *subview in _scrollView.subviews){
+        [subview removeFromSuperview];
+    }
+}//removeViewsFromRecycler
+/*-------------orientationChanged---------*/
 - (void) orientationChanged:(NSNotification *)note
 {
     UIDeviceOrientation Orientation=[[UIDevice currentDevice]orientation];
@@ -417,11 +398,18 @@ bool sessionDisconnect=NO;
   }//sessiondisconnect condition
 }//orientationChanged
 
+/*-----------checkSubscribersList--------*/
 -(void)checkSubscribersList{
     if(_allSubscribers.count>0){
         [self shuffle];
+        if(changeveiw ==false){
+            [self setUpPublisherFrame:_scrollView.frame.origin.y height:_scrollView.frame.size.height];
+            [self setupScrollView]; [self addViewMainScrollScontainer:maincontainerSub tagValue:(int)_scrollContainerView.tag];[self recyclerView];
+        }else{
+            [self setUpPublisherFrame:_publisherView.frame.origin.y height:100];
+        }
     }
-}
+}//checkSubscribersList
 
 /*cam swape*/
 - (IBAction)swapCam:(id)sender {
@@ -460,71 +448,33 @@ NSTimer *timer;
         [self destroyAll];
         [timer invalidate];
         timer = nil;
-        [_session disconnect:nil];
-        [self dismissViewControllerAnimated:YES completion:nil];
-        [UIApplication sharedApplication].idleTimerDisabled = NO;
-        /*  [_session disconnect:nil];
-            [self cleanupPublisher];
-            [self cleanupSubscriber];
-            [self dismissViewControllerAnimated:YES completion:nil];
-            [UIApplication sharedApplication].idleTimerDisabled = NO;
-            return;*/
-    
     }
     
 }//updateCountdown
-- (void)showReconnectingAlert
-{
-  /*  [self showAlertWithMessage:@"Session is reconnecting"
-                         title:@""
-            showDissmissButton:YES];*/
+
+/*--showReconnectingAlert--*/
+- (void)showReconnectingAlert{
     [self.sessionReconnectingMsgLabel setHidden:NO];
-}
+}//showReconnectingAlert
 
-
-- (void)dismissReconnectingAlert
-{
+/*---dismissReconnectingAlert---*/
+- (void)dismissReconnectingAlert{
     [self.sessionReconnectingMsgLabel setHidden:YES];
 }
 
-- (void)sessionDidBeginReconnecting:(OTSession *)session
-{
+/*------sessionDidBeginReconnecting------*/
+- (void)sessionDidBeginReconnecting:(OTSession *)session{
     [self showReconnectingAlert];
-}
+}//sessionDidBeginReconnecting
 
-- (void)sessionDidReconnect:(OTSession *)session
-{
+/*-----sessionDidBeginReconnecting-----*/
+- (void)sessionDidReconnect:(OTSession *)session{
     [self dismissReconnectingAlert];
-}
-
-/*---showAlertWithMessage---
-- (void)showAlertWithMessage:(NSString *)message
-                       title:(NSString *)title
-          showDissmissButton:(BOOL)showButton
-{
-       dispatch_async(dispatch_get_main_queue(), ^{
-           self.alert = [UIAlertController alertControllerWithTitle:title
-                                                            message:message
-                                                     preferredStyle:UIAlertControllerStyleAlert];
-           if (showButton) {
-               UIAlertAction *action = [UIAlertAction actionWithTitle:@"OK"
-                                                                style:UIAlertActionStyleCancel
-                                                              handler:^(UIAlertAction * _Nonnull action) {
-                                                                  [self.alert dismissViewControllerAnimated:YES completion:nil];
-                                                              }];
-               [self.alert addAction:action];
-               
-           }
-           
-           [self presentViewController:self.alert animated:YES completion:nil];
-           
-       });
-   
-}//showAlertWithMessage */
+}//sessionDidReconnect
 
 
-- (void)setupSession
-{
+/*---setupSession----*/
+- (void)setupSession{
     NSLog(@" =---------entered----");
     [_activityIndicator startAnimating];//spinner start
     //setup one time session
@@ -538,93 +488,103 @@ NSTimer *timer;
     [_session connectWithToken:self.openTokToken error:nil];
     [self setupPublisher];
     
-}
+}//setupSession
 
-- (void)setupPublisher
-{
-    // create one time publisher and style publisher
+/*---setupPublisher---*/
+- (void)setupPublisher{
     OTPublisherSettings *settings = [[OTPublisherSettings alloc] init];
-    settings.name = [UIDevice currentDevice].name;
+    settings.name =  [self.hybridParams safeObjectForKey:@"userName"];//[UIDevice currentDevice].name;
     _publisher = [[OTPublisher alloc] initWithDelegate:self settings:settings];
+    [self addPublisherview:_publisher];
+    [_messegeForUser setHidden:NO];
+}//setupPublisher
+
+/*----addViewForPublisher-----*/
+-(void)addPublisherview:(OTPublisher *)publisher{
     [_publisher.view setFrame:CGRectMake(0, 0, self.publisherView.frame.size.width, self.publisherView.frame.size.height)];
     [self.publisherView addSubview:_publisher.view];
-    [_messegeForUser setHidden:NO];
-}
+}//addViewForPublisher
 
+/*------setUpPublisherFrame--------*/
+-(void)setUpPublisherFrame:(float )yaxis height:(float )height{
+    self.publisherView.frame=CGRectMake(0, yaxis, 100, height);
+    self.publisherDeaultImage.frame=CGRectMake(0, yaxis, 100, height);
+    [self addPublisherview:_publisher];
+}//setUpPublisherFrame
+/*---------------controllAudioOfSubscribers--------------*/
+- (IBAction)controllAudioOfSubscribers:(UIButton *)sender {
+    int tag =(int)sender.tag;
+    OTSubscriber *sub=[_allSubscribers objectForKey:keys[tag]];
+    UIButton * button=(tag==0)?_audioBTNOne :(tag==1)? _audioBTNTwo :(tag==2)?_audioBTNThree:_audioBTNFour;
+    if([button.currentImage isEqual:[UIImage imageNamed:@"audio"]]){
+        [self adjustSubscriberAudio:false subscriber:sub button:button];
+    }else{
+         [self adjustSubscriberAudio:true subscriber:sub button:button];
+    }
+}//controllAudioOfSubscribers
 
-// View Tapped When Hide Back and BottomView
+/*---setHiddenShowForICONs----*/
+-(void)setHiddenShowForICONs:(Boolean ) value{
+    [self.exitBtn setHidden:value];
+    [self.audioSubUnsubButton setHidden:value];
+    [self.videoSubUnsubButton setHidden:value];
+    [self.swapCameraButton setHidden:value];
+}//setHiddenShowForICONs
+
+/*---View Tapped When Hide Back and BottomView--*/
 - (void)viewTappedInLive:(UITapGestureRecognizer *)tgr {
-    
-    if (!isFullScreen) {
-        [self.view layoutIfNeeded];
+    [self afterOverlayTimeAction];
+}//viewTappedInLive
+
+-(void)afterOverlayTimeAction{
+  
+    if (tapped) {
         [UIView animateWithDuration:0.5
                          animations:^{
-                              [self.bottomView setHidden:YES];//[self.view layoutIfNeeded]; // Called on parent view
-                              [self setHideAndShowAudioButtons:true];
-                             if(keys.count==1){ [self.subscriberOneAudioAdjustBtn setHidden:YES];  }
+                             [self setHiddenShowForICONs:true];
+                             if(keys.count>1){ [self.topToolBar setHidden:YES];}
+                             if(changeveiw==false){
+                                 _scrollView.frame=CGRectMake(0,afterIconsOnYaxis, _scrollView.frame.size.width, _scrollView.frame.size.height);
+                                 [self setUpPublisherFrame:afterIconsOnYaxis height:_scrollView.frame.size.height];
+                             }
                          }];
-        
-        isFullScreen = YES;
+        tapped=NO;
     }else{
-        [self.view layoutIfNeeded];
-        //self.bottomViewHeight.constant = 50;
         [UIView animateWithDuration:.5
                          animations:^{
-                            [self.bottomView setHidden:NO];//   [self.view layoutIfNeeded]; // Called on parent view
-                            [self setHideAndShowAudioButtons:false];
-                             if(keys.count==1){[self.subscriberOneAudioAdjustBtn setHidden:NO];}
+                             if (self.overlayTimer) {[self.overlayTimer invalidate];}
+                             [self setHiddenShowForICONs:false];
+                             [self overlayTimerSetUp];// start overlay hide timer
+                             if(keys.count>1){  [self.topToolBar setHidden:NO];}
+                             if(changeveiw==false){_scrollView.frame=CGRectMake(0,initialYaxisScroll,_scrollView.frame.size.width, _scrollView.frame.size.height);
+                                 [self setUpPublisherFrame:initialYaxisScroll height:_scrollView.frame.size.height];
+                             }
                          }];
-        isFullScreen = NO;
+        tapped=YES;
     }
-    
-    if (self.overlayTimer) {
-        [self.overlayTimer invalidate];
-    }
-    // start overlay hide timer
+   
+   
+}//afterOverlayTimeAction
+
+-(void)overlayTimerSetUp{
     self.overlayTimer =
     [NSTimer scheduledTimerWithTimeInterval:10
                                      target:self
                                    selector:@selector(overlayTimerAction)
                                    userInfo:nil
                                     repeats:NO];
-    
 }
 
-- (void)overlayTimerAction
-{
+
+/*----overlayTimerAction ----*/
+- (void)overlayTimerAction{
     // Hide views
-    if (!isFullScreen) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [self viewTappedInLive:[[self.view gestureRecognizers]
-                                    objectAtIndex:0]];
-        });
-        
-        //[[[self.view gestureRecognizers] objectAtIndex:0] sendActionsForControlEvents:UIControlEventTouchUpInside];
-        
-    }else{
-        if (self.overlayTimer) {
-            [self.overlayTimer invalidate];
-        }
-    }
-}
+        [self afterOverlayTimeAction];
+      //  [self setHiddenShowForICONs:true];
+        if (self.overlayTimer) { [self.overlayTimer invalidate]; }
+}//overlayTimerAction
 
--(void)setHideAndShowAudioButtons:(BOOL *)value{
-    if(keys.count==1){
-        [self.subscriberOneAudioAdjustBtn setHidden:value];
-    }else if (keys.count==2){
-        [self.subTwoOneAudioAdjustBtn setHidden:value];
-        [self.subTwoTwoAudioAdjustBtn setHidden:value];
-    }else if(keys.count==3){
-        [self.subThreeOneAudioAdjustBtn setHidden:value];
-        [self.subThreeTwoAudioAdjustBtn setHidden:value];
-        [self.subThreeThreeAudioAdjustBtn setHidden:value];
-    }else if(keys.count==4){
-        [self.subFourOneAudioAdjustBtn setHidden:value];
-        [self.subFourTwoAudioAdjustBtn setHidden:value];
-        [self.subFourThreeAudioAdjustBtn setHidden:value];
-        [self.subFourFourAudioAdjustBtn setHidden:value];
-    }
-}
+
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
@@ -632,9 +592,8 @@ NSTimer *timer;
 }
 
 
-
-- (void)createSubscriber:(OTStream *)stream
-{
+/*-----createSubscriber----*/
+- (void)createSubscriber:(OTStream *)stream{
     // create subscriber
     _currentSubscriber = [[OTSubscriber alloc]
                           initWithStream:stream delegate:self];
@@ -644,32 +603,25 @@ NSTimer *timer;
     {
         //            [self showAlert:[error localizedDescription]];
     }
-}
+}//createSubscriber
 
 
 // Open Tok Delegates
 # pragma mark - OTSession delegate callbacks
-
-- (void) session:(OTSession *)mySession
-   streamCreated:(OTStream *)stream {
+/*-------------mySession streamCreated-------------*/
+- (void) session:(OTSession *)mySession streamCreated:(OTStream *)stream {
     NSLog(@"Connection Meta Data  in mySession streamCreated : %@",stream.connection.data);
-   // NSString *publisherId = [self.hybridParams safeObjectForKey:@"trainerUserid"];
-    //NSString *streamPublisherId = [NSString stringWithFormat:@"%@",stream.connection.data];
     [self createSubscriber:stream];
-}
+}//streamCreated
 
+/*------sessionDidDisconnect-----*/
 - (void)sessionDidDisconnect:(OTSession *)session {
     sessionDisconnect=YES;
-   /* [self.messegeForUser setHidden:NO];
-    NSString* alertMessage =
-    [NSString stringWithFormat:@"Session disconnected: (%@)",
-     session.sessionId];
-   // NSLog(@"sessionDidDisconnect (%@)", alertMessage);*/
     [self destroyAll];
-}
+}//sessionDidDisconnect
 
--(void) destroyAll
-{
+/*------destroyAll-------*/
+-(void) destroyAll{
     [_session disconnect:nil];
     [self dismissViewControllerAnimated:YES completion:nil];
     [self endBackgroundUpdateTask];
@@ -677,10 +629,12 @@ NSTimer *timer;
     [self cleanupPublisher];
     [_allSubscribers removeAllObjects];
     [_allStreams removeAllObjects];
+    [keys removeAllObjects];
     return;
-}
+}//destroyAll
+
+/*-----sessionDidConnect-----*/
 - (void)sessionDidConnect:(OTSession *)session {
-    
     // now publish
     OTError *error = nil;
     [_session publish:_publisher error:&error];
@@ -690,53 +644,59 @@ NSTimer *timer;
     }
     [_activityIndicator stopAnimating]; //spinner close
     [_activityIndicator setHidden:YES];
-}
+}//sessionDidConnect
 
 - (void)session:(OTSession *)session didFailWithError:(OTError *)error {
 }
 
+/*-----streamDestroyed-----*/
 - (void)session:(OTSession *)session streamDestroyed:(OTStream *)stream{
     NSLog(@"streamDestroyed %@", stream.connection.connectionId);
     OTSubscriber *subscriber = [_allSubscribers objectForKey:stream.connection.connectionId];
+    [keys removeObject:stream.connection.connectionId];
     [subscriber.view removeFromSuperview];
     [_allSubscribers removeObjectForKey:stream.connection.connectionId];
-    if(_allSubscribers.count==0){
-        [_messegeForUser setHidden:NO];
+    if(changeveiw==false){
+        [self removeViewsFromRecycler];
     }
+    if(_allSubscribers.count==0){[_messegeForUser setHidden:NO];
+        if(changeveiw==false){
+             [self.scrollContainerAudioBtn setHidden:YES];
+        }
+    }
+   if(keys.count==1 && changeveiw==false){
+       [self.changeViewButton setHidden:YES];
+       OTSubscriber *lastSub=[_allSubscribers objectForKey:keys[0]];
+       [self addViewMainScrollScontainer:lastSub tagValue:0];
+   }
     
+    if(_allSubscribers.count<=1){
+        [_topToolBar setHidden:YES];
+    }
     [self shuffle];
    
-}
-- (void)cleanupSubscriber
-{
+}//streamDestroyed
+
+/*---cleanupSubscriber---*/
+- (void)cleanupSubscriber{
     [_currentSubscriber.view removeFromSuperview];
     _currentSubscriber = nil;
-}
+}//cleanupSubscriber
 
+/*----cleanupPublisher----*/
 - (void)cleanupPublisher {
     [_publisher.view removeFromSuperview];
     _publisher = nil;
     // this is a good place to notify the end-user that publishing has stopped.
-}
+}//cleanupPublisher
 
 # pragma mark - OTPublisher delegate callbacks
 
-// Publisher
-
 - (void)publisher:(OTPublisherKit *)publisher
-    streamCreated:(OTStream *)stream
-{
+streamCreated:(OTStream *)stream{
     NSLog(@"Connection Meta Data  in publisher streamCreated -------: %@",stream.connection.data);
-    /*if([_allConnectionIds containsObject:stream.connection.data]){
-        [self showAlertWithMessage:@"Someone"
-                             title:@"warning"
-                showDissmissButton:YES];
-    }else{
-        [_allConnectionIds addObject:stream.connection.data];
-    }*/
-    
-    
-}
+}//streamCreated
+
 - (void)publisher:(OTPublisherKit*)publisher
   streamDestroyed:(OTStream *)stream
 {
@@ -744,216 +704,255 @@ NSTimer *timer;
     {
         [self cleanupSubscriber];
     }
-    
     [self cleanupPublisher];
 }
-
+/*----------------publisher didFailWithError------------*/
 - (void)publisher:(OTPublisher *)publisher didFailWithError:(OTError *)error
 {
     NSLog(@"publisher didFailWithError %@", error);
     NSLog(@"publisher didFailWithError %@", error);
     [self cleanupPublisher];
-    
-}
-
+}//publisher didFailWithError
 
 # pragma mark - OTSubscriber delegate callbacks
-int count=0;
-bool streamDestroid=NO;
-// Subscriber
+/*-----------------subscriberDidConnectToStream---------------*/
 - (void)subscriberDidConnectToStream:(OTSubscriberKit *)subscriber
 {
     OTSubscriber *sub = (OTSubscriber *)subscriber;
     [_allSubscribers setObject:sub forKey:sub.stream.connection.connectionId];
-    if(_allSubscribers.count>0){
+    [keys addObject:sub.stream.connection.connectionId];
+    
+    if(_allSubscribers.count==1){
         [_messegeForUser setHidden:YES];
+        if(changeveiw==false){[self addViewMainScrollScontainer:sub tagValue:0];}
     }
     [_allStreams setObject:sub.stream forKey:sub.stream.connection.connectionId];
-    [self shuffle];
-   //UIView *viewToAdd = sub.view;
-    
-  //  [_allConnectionIds addObject:sub.stream.connection.connectionId];
+    if(keys.count>1){[self.changeViewButton setHidden:NO];}
+    if([_muteUnmuteAllButton.titleLabel.text isEqualToString:@"Unmute all"]){
+        [self enableAndDisableAllSubscriberAudios:false];
+    }else{
+        [self enableAndDisableAllSubscriberAudios:true];
+    }
+     [self shuffle];
     NSLog(@"subscriberDidConnectToStream (%@)",
           subscriber.stream.connection.connectionId);
+}//subscriberDidConnectToStream
+
+/*---------addViewsForGridView------*/
+-(void)addViewForGridView:(OTSubscriber *)sub   width:(float )width height:(float )height xAxis:(float )xAxis yAxis:(float )yAxis tagValue:(int )tag {
+    UIView* view=[[UIView alloc] initWithFrame:CGRectMake(xAxis, yAxis, width, height)];
+    [_mainContainerView addSubview:view];
+    [sub.view setFrame:CGRectMake(0, 0, view.frame.size.width, view.frame.size.height)];
+    [view addSubview:sub.view];
+    UIButton * button=(tag==0)?_audioBTNOne:(tag==1)?_audioBTNTwo:(tag==2)?_audioBTNThree:_audioBTNFour;
+    [self addFrameForButtons:width button:button tagValue:tag];
+    [sub.view addSubview:button];
+}//addViewForGridView
+
+/*-------------addFrameForButtons------*/
+-(void)addFrameForButtons:(float )width button :(UIButton *)button tagValue:(int )tag{
+     [button setHidden:false];
+     button.tag=tag;
+     button.frame = CGRectMake(width-40,18 ,35,35);
+}//addFrameForButtons
+
+-(void)addDefaultImageForViewInGrid:(OTSubscriber *)sub width:(float )width height:(float )height xAxis:(float )xAxis yAxis:(float )yAxis tagValue:(int )tag{
+    UIImageView *image=[[UIImageView alloc] initWithImage:[UIImage imageNamed:@"avatar"]];
+    image.frame = CGRectMake(xAxis, yAxis,width,height);
+    image.backgroundColor=[UIColor darkGrayColor];
+    [_mainContainerView addSubview:image];
+    UIButton * button=(tag==0)?_audioBTNOne:(tag==1)?_audioBTNTwo:(tag==2)?_audioBTNThree:_audioBTNFour;
+    [self addFrameForButtons:width button:button tagValue:tag];
+    [image addSubview:button];
+}
+
+-(void)removeSubViewsInMaincontainerViwe{
+    for(UIView * subview in _mainContainerView.subviews){
+        [subview removeFromSuperview];
+    }
+}
+
+/*-----loopForGridViews-----*/
+-(void)loopForGridViews:(float )width height:(float )height xAxis:(float )xAxis yAxis:(float )yAxis {
+    float widthOfView=width;
+    float xAxisOfview=0;
+    float yAxisOfview=0;
+    float heightOfView=height;
+   
+    NSLog(@" -------height----- %f,%f",height,width);
+    NSLog(@"---------xaxis and yaxis----- %f,%f",xAxisOfview,yAxisOfview );
     
-    NSLog(@"----session stream id ------- (%@)", sub.stream.connection.connectionId);
+    for(int i=0;i<_allSubscribers.count;i++){
+        OTSubscriber * sub=[_allSubscribers objectForKey:keys[i]];
+       if(sub.stream.hasVideo){
+            [self addViewForGridView:sub width:widthOfView height:heightOfView xAxis:xAxisOfview yAxis:yAxisOfview tagValue:i];
+        }else{
+            [self addDefaultImageForViewInGrid:sub width:widthOfView height:heightOfView xAxis:xAxisOfview yAxis:yAxisOfview tagValue:i];
+        }
+        
+        /*if(i==0){
+            yAxisOfview=(_allSubscribers.count==2)?_mainContainerView.frame.size.height/2:0;
+            xAxisOfview=(_allSubscribers.count==3 || _allSubscribers.count==4)? width:0;
+        }
+        if(i==1){
+            xAxisOfview=0;
+            yAxisOfview=(_allSubscribers.count==3 || _allSubscribers.count==4)? _mainContainerView.frame.size.height/2:yAxisOfview;
+            width=(_allSubscribers.count==3)? _mainContainerView.frame.size.width: width;
+        }
+        if(i==2){
+            xAxisOfview=_mainContainerView.frame.size.width/2;
+        }*/
+        
+        yAxisOfview=(_allSubscribers.count==2 && i==0)?_mainContainerView.frame.size.height/2:(_allSubscribers.count==3 && i==1)? height:(_allSubscribers.count==4 && (i==1 || i==2))? height:0;
+        xAxisOfview=((_allSubscribers.count==3||_allSubscribers.count==4)&& (i==0||i==2))? width:0;
+        widthOfView=(_allSubscribers.count==3 && i==1)?_mainContainerView.frame.size.width :(_allSubscribers.count==2)?_mainContainerView.frame.size.width :width;
+   }
+}//loopForGridViews
 
-}//subscriberDidCon
 
-
-OTSubscriber *sub1;
-OTSubscriber *sub2;
-OTSubscriber *sub3;
-OTSubscriber *sub4;
-NSArray *keys;
 /*-------shuffle-----*/
 -(void)shuffle
 {
-  keys=[_allSubscribers allKeys];
-    if(keys.count==1){
-       // [self.defaultimage setHidden:YES];
-        [self.subscriberViewsFourLayout setHidden:YES];
-        [self.subscriberViewsThreeLayout setHidden:YES];
-        [self.subscribersViewTwoLayout setHidden:YES];
-        [self.subscriberView setHidden:NO];
-    }else if(keys.count==2){
-        [self.subscriberViewsFourLayout setHidden:YES];
-        [self.subscriberViewsThreeLayout setHidden:YES];
-        [self.subscribersViewTwoLayout setHidden:YES];
-        [self.subscribersViewTwoLayout setHidden:NO];
-    }else if(keys.count==3){
-        [self.subscriberViewsFourLayout setHidden:YES];
-        [self.subscriberViewsThreeLayout setHidden:NO];
-    }else if(keys.count==4){
-       // [self.subscriberViewsThreeLayout removeFromSuperview];
-        [self.subscriberViewsThreeLayout setHidden:YES];
-        [self.subscriberViewsFourLayout setHidden:NO];
-    }//keys if-else
+   if(changeveiw){
+       float width= (_allSubscribers.count==1 || _allSubscribers.count==2)?_mainContainerView.frame.size.width:_mainContainerView.frame.size.width/2 ;
+       float height= (_allSubscribers.count>1)?_mainContainerView.frame.size.height/2:_mainContainerView.frame.size.height;
+       [self removeSubViewsInMaincontainerViwe];
+       [self loopForGridViews:width height:height xAxis:0 yAxis:0];
     
-
-    if(keys.count==1){
-        sub1=[ _allSubscribers objectForKey:keys[0]];
-        if(sub1.stream.hasVideo){[self.defaultimage setHidden:YES];}else{[self.defaultimage setHidden:NO];}
-        if(sub1.subscribeToAudio==YES){ [self subOneOneAudioButtonEnable]; }else{[self subOneOneAudioButtonDisable];}
-        [sub1.view setFrame:CGRectMake(0, 0 ,self.subscriberView.frame.size.width ,self.subscriberView.frame.size.height)];
-        [self.subscriberView addSubview:sub1.view];
-        [self.subscriberOneAudioAdjustBtn setHidden:NO];
-    }else if(keys.count==2){
-        sub1=[ _allSubscribers objectForKey:keys[0]];
-        if(sub1.stream.hasVideo){[self.subTwoLayerOneDefaultImage setHidden:YES];}else{[self.subTwoLayerOneDefaultImage setHidden:NO];}
-        if(sub1.subscribeToAudio==YES){[self subTwoOneAudioButtonEnable];}else{ [self subTwoOneAudioButtonDisable];}
-        [sub1.view setFrame:CGRectMake(0, 0 ,self.subscriberViewTwo1.frame.size.width ,self.subscriberViewTwo1.frame.size.height)];
-        [self.subscriberViewTwo1 addSubview:sub1.view];
-        sub2=[ _allSubscribers objectForKey:keys[1]];
-        if(sub2.stream.hasVideo){[self.subTwoLayerTwoDefaultImage setHidden:YES];}else{ [self.subTwoLayerTwoDefaultImage setHidden:NO];}
-        if(sub2.subscribeToAudio==YES){ [self subTwoTwoAudioButtonEnable]; }else{   [self subTwoTwoAudioButtonDisable];}
-        [sub2.view setFrame:CGRectMake(0, 0 ,self.subscriberViewtwo2.frame.size.width ,self.subscriberViewtwo2.frame.size.height)];
-        [self.subscriberViewtwo2 addSubview:sub2.view];
-    }else if(keys.count==3){
-        sub1=[_allSubscribers objectForKey:keys[0]];
-        if(sub1.stream.hasVideo){[self.subThreeLayerDefaultImg1 setHidden:YES];}else{ [self.subThreeLayerDefaultImg1 setHidden:NO];}
-        if(sub1.subscribeToAudio==YES){[self subThreeOneAudioEnable];}else{ [self subThreeOneAudioDisable]; } //audio
-        [sub1.view setFrame:CGRectMake(0, 0 ,self.subscriberThree1.frame.size.width ,self.subscriberThree1.frame.size.height)];
-        [self.subscriberThree1 addSubview:sub1.view];
-        sub2=[ _allSubscribers objectForKey:keys[1]];
-        if(sub2.stream.hasVideo){[self.subThreeLayerDefaultImg2 setHidden:YES]; }else{[self.subThreeLayerDefaultImg2 setHidden:NO];}
-        if(sub2.subscribeToAudio==YES){[self subThreeTwoAudioEnable];}else{[self subThreeTwoAudioDisable];}
-        [sub2.view setFrame:CGRectMake(0, 0 ,self.subscriberThree2.frame.size.width ,self.subscriberThree2.frame.size.height)];
-        [self.subscriberThree2 addSubview:sub2.view];
-        sub3=[ _allSubscribers objectForKey:keys[2]];
-        if(sub3.stream.hasVideo){[self.subThreeLayerDefaultImg3 setHidden:YES];}else{[self.subThreeLayerDefaultImg3 setHidden:NO];}
-        if(sub3.subscribeToAudio==YES){ [self subThreeThreeAudioEnable]; }else{ [self subThreeThreeAudioDisable];}
-        [sub3.view setFrame:CGRectMake(0, 0 ,self.subscriberThree3.frame.size.width ,self.subscriberThree3.frame.size.height)];
-        [self.subscriberThree3 addSubview:sub3.view];
-    }else if(keys.count==4){
-        //[self hideAudioButtons];
-        sub1=[ _allSubscribers objectForKey:keys[0]];
-        if(sub1.stream.hasVideo){[self.subFourLayerDefault1 setHidden:YES]; }else{[self.subFourLayerDefault1 setHidden:NO]; }
-        [sub1.view setFrame:CGRectMake(0, 0 ,self.subscriberFour1.frame.size.width ,self.subscriberFour1.frame.size.height)];
-        [self.subscriberFour1 addSubview:sub1.view];
-        if(sub1.subscribeToAudio==YES){[self subFourOneAudioEnable];}else{[self subFourOneAudioDisable];}
-        sub2=[ _allSubscribers objectForKey:keys[1]];
-        if(sub2.stream.hasVideo){[self.subFourLayerDefault2 setHidden:YES]; }else{[self.subFourLayerDefault2 setHidden:NO]; }
-        [sub2.view setFrame:CGRectMake(0, 0 ,self.subscriberFour2.frame.size.width ,self.subscriberFour2.frame.size.height)];
-        [self.subscriberFour2 addSubview:sub2.view];
-        if(sub2.subscribeToAudio==YES){[self subFourTwoAudioEnable];}else{[self subFourTwoAudioDisable];}
-        sub3=[ _allSubscribers objectForKey:keys[2]];
-        if(sub3.stream.hasVideo){[self.subFourLayerDefault3 setHidden:YES]; }else{[self.subFourLayerDefault3 setHidden:NO]; }
-        [sub3.view setFrame:CGRectMake(0, 0 ,self.subscriberFour3.frame.size.width ,self.subscriberFour3.frame.size.height)];
-        [self.subscriberFour3 addSubview:sub3.view];
-         if(sub3.subscribeToAudio==YES){[self subFourThreeAudioEnable];}else{[self subFourThreeAudioDisable];}
-        sub4=[ _allSubscribers objectForKey:keys[3]];
-        if(sub4.stream.hasVideo){[self.subFourLayerDefault4 setHidden:YES]; }else{[self.subFourLayerDefault4 setHidden:NO]; }
-        [sub4.view setFrame:CGRectMake(0, 0 ,self.subscriberFour4.frame.size.width ,self.subscriberFour4.frame.size.height)];
-        [self.subscriberFour4 addSubview:sub4.view];
-         if(sub4.subscribeToAudio==YES){[self subFourFourAudioEnable];}else{[self subFourFourAudioDisable];}
-    }
+  }else{
+      //[self addPublisherview:_publisher];
+      [self removeSubViewsInMaincontainerViwe];
+      [self hideAudioButtons:YES];
+      [self recyclerView];
+  }
 }//shuffle
+int initialDefaultImgXaxis;
+-(void)recyclerView{
+    double xAxis=102;
+        double width=100;
+        for(int i=0;i<keys.count;i++){
+            OTSubscriber *sub=[_allSubscribers objectForKey:keys[i]];
+            [_scrollView setContentSize:CGSizeMake(width+180, _scrollView.frame.size.height)];
+            _scrollView.delegate=self;
+            [self addRecyclerView:sub xAxis:xAxis tagValue:i];
+            width+=100;
+            xAxis+=102;
+    }
+ }//recyclerView
 
+OTSubscriber *maincontainerSub=nil;
+/*----------addViewMainScrollScontainer-------*/
+-(void)addViewMainScrollScontainer:(OTSubscriber *)sub tagValue:(int )tag{
+    maincontainerSub=sub;
+    self.scrollContainerView.tag=tag;
+    [_scrollContainerAudioBtn.layer setBorderWidth:1.0];
+    [_scrollContainerAudioBtn.layer setBorderColor:[[UIColor lightGrayColor] CGColor]];
+    [self.scrollContainerAudioBtn setHidden:NO];
+    if([_muteUnmuteAllButton.titleLabel.text isEqualToString:@"Mute all"]){
+          [self adjustSubscriberAudio:true subscriber:maincontainerSub button:_scrollContainerAudioBtn];
+    }else{[self adjustSubscriberAudio:false subscriber:maincontainerSub button:_scrollContainerAudioBtn];}
+    if(sub.stream.hasVideo){
+    [sub.view setFrame:CGRectMake(0, 0 ,self.scrollContainerView.frame.size.width ,self.scrollContainerView.frame.size.height)];
+        [self.scrollContainerView addSubview:sub.view];
+    }else{
+        [self addDefaultImage:sub xAxis:0 widht:self.scrollContainerView.frame.size.width height:self.scrollContainerView.frame.size.height container:@"main" tagValue:tag];
+    }
+}//addViewMainScrollScontainer
+/*----------addRecyclerView---------*/
+-(void)addRecyclerView:(OTSubscriber *)sub xAxis:(double )xAxis tagValue:(int )tag{
+        if(sub.stream.hasVideo && ![maincontainerSub.stream.connection.connectionId isEqual:sub.stream.connection.connectionId]){
+            UIView * subcriberViewInScroll=[[UIView alloc] initWithFrame:CGRectMake(xAxis, 0, 100, _scrollView.frame.size.height)];
+            [subcriberViewInScroll setClipsToBounds:YES];
+            [sub.view setFrame:CGRectMake(0,0 ,subcriberViewInScroll.frame.size.width, subcriberViewInScroll.frame.size.height)];
+            [subcriberViewInScroll addSubview:sub.view];
+            subcriberViewInScroll.tag=tag;
+            subcriberViewInScroll.layer.cornerRadius=5;
+            subcriberViewInScroll.layer.masksToBounds = true;
+            [subcriberViewInScroll addGestureRecognizer: [[UITapGestureRecognizer alloc] initWithTarget:self  action:@selector(tapOnScrollerViews:)]];
+          [_scrollView addSubview:subcriberViewInScroll];
+        }else{
+            if(keys.count!=1){
+            [self addDefaultImage:sub
+                            xAxis:xAxis
+                            widht:100
+                           height: _scrollView.frame.size.height
+                        container:@"sub" tagValue:tag];
+            }
+            
+        }//else
+    
+}//addRecyclerView
 
+float defaultImgInitialInScrollViewX;
+int defaultImgInitialInScrollTag;
 
+-(void)addDefaultImage:(OTSubscriber *)sub
+                 xAxis:(double )xAxis
+                 widht:(double )width
+                height:(double )height
+             container:(NSString *)container
+              tagValue:(int )tag
+{
+    NSString * imageName=(sub.stream.hasVideo)? @"empty" :@"avatar";
+    UIImageView *image=[[UIImageView alloc] initWithImage:[UIImage imageNamed:imageName]];
+     image.frame = CGRectMake(xAxis, 0,width,height);
+    if([maincontainerSub.stream.connection.connectionId isEqual:sub.stream.connection.connectionId]){
+        image.layer.borderWidth = 0.8;
+       // [image setBackgroundColor:[UIColor whiteColor]];
+    }else{
+        [image setBackgroundColor:[UIColor darkGrayColor]];
+    }
+   
+    
+    if(self.scrollContainerView.frame.size.width!=width){ image.layer.borderColor=[[UIColor redColor] CGColor]; }
+    
+    UILabel *label=[[UILabel alloc] initWithFrame:CGRectMake(0, 0, image.frame.size.width,image.frame.size.height )];
+    if(!sub.stream.hasVideo){
+    UILabel *videoMutelabel=[[UILabel alloc] initWithFrame:CGRectMake(0,0, label.frame.size.width,label.frame.size.height/4)];
+    videoMutelabel.textColor=[UIColor redColor];
+    videoMutelabel.textAlignment = NSTextAlignmentCenter;
+    videoMutelabel.text=([container isEqualToString:@"main"])? @"Video muted" :@"Muted";
+    [label addSubview:videoMutelabel];
+    }
+    label.textColor=(sub.stream.hasVideo)? [UIColor blackColor]:[UIColor whiteColor];
+    label.textAlignment = NSTextAlignmentCenter;
+    label.text=sub.stream.name;
+    [image addSubview:label];
+    image.tag=tag;
+    image.layer.cornerRadius=5;
+    image.layer.masksToBounds=true;
+    image.userInteractionEnabled=YES;
+    if(![maincontainerSub.stream.connection.connectionId isEqual:sub.stream.connection.connectionId]){
+        [image addGestureRecognizer: [[UITapGestureRecognizer alloc] initWithTarget:self  action:@selector(tapOnScrollerViews:)]];
+    }else{
+        defaultImgInitialInScrollViewX=xAxis;
+        defaultImgInitialInScrollTag=tag;
+    }
+    //[self addTapActionToUIview:image];
+    if([container isEqual:@"main"]){
+        [self.scrollContainerView addSubview:image];
+    }else{
+        [_scrollView addSubview:image];
+    }
+}//addDefaultImage
 
--(void) subOneOneAudioButtonEnable
-{
-    [self.subscriberOneAudioAdjustBtn setImage:[UIImage imageNamed:@"audio"] forState:UIControlStateNormal];
-}
--(void) subOneOneAudioButtonDisable
-{
-    [self.subscriberOneAudioAdjustBtn setImage:[UIImage imageNamed:@"noAudio"] forState:UIControlStateNormal];
-}
--(void) subTwoOneAudioButtonEnable
-{
-    [self.subTwoOneAudioAdjustBtn setImage:[UIImage imageNamed:@"audio"] forState:UIControlStateNormal];
-}
--(void) subTwoTwoAudioButtonEnable
-{
-    [self.subTwoTwoAudioAdjustBtn setImage:[UIImage imageNamed:@"audio"] forState:UIControlStateNormal];
-}
--(void) subTwoOneAudioButtonDisable
-{
-    [self.subTwoOneAudioAdjustBtn setImage:[UIImage imageNamed:@"noAudio"] forState:UIControlStateNormal];
-}
--(void) subTwoTwoAudioButtonDisable
-{
-     [self.subTwoTwoAudioAdjustBtn setImage:[UIImage imageNamed:@"noAudio"] forState:UIControlStateNormal];
-}
--(void) subThreeOneAudioEnable
-{
-     [self.subThreeOneAudioAdjustBtn setImage:[UIImage imageNamed:@"audio"] forState:UIControlStateNormal];
-}
--(void) subThreeTwoAudioEnable
-{
-     [self.subThreeTwoAudioAdjustBtn setImage:[UIImage imageNamed:@"audio"] forState:UIControlStateNormal];
-}
--(void) subThreeThreeAudioEnable
-{
-    [self.subThreeThreeAudioAdjustBtn setImage:[UIImage imageNamed:@"audio"] forState:UIControlStateNormal];
-}
--(void) subThreeOneAudioDisable
-{
-     [self.subThreeOneAudioAdjustBtn setImage:[UIImage imageNamed:@"noAudio"] forState:UIControlStateNormal];
-}
--(void) subThreeTwoAudioDisable
-{
-     [self.subThreeTwoAudioAdjustBtn setImage:[UIImage imageNamed:@"noAudio"] forState:UIControlStateNormal];
-}
--(void) subThreeThreeAudioDisable
-{
-    [self.subThreeThreeAudioAdjustBtn setImage:[UIImage imageNamed:@"noAudio"] forState:UIControlStateNormal];
-}
--(void) subFourOneAudioEnable
-{
-     [self.subFourOneAudioAdjustBtn setImage:[UIImage imageNamed:@"audio"] forState:UIControlStateNormal];
-}
--(void) subFourTwoAudioEnable
-{
-    [self.subFourTwoAudioAdjustBtn setImage:[UIImage imageNamed:@"audio"] forState:UIControlStateNormal];
-}
--(void) subFourThreeAudioEnable
-{
-     [self.subFourThreeAudioAdjustBtn setImage:[UIImage imageNamed:@"audio"] forState:UIControlStateNormal];
-}
--(void) subFourFourAudioEnable
-{
-    [self.subFourFourAudioAdjustBtn setImage:[UIImage imageNamed:@"audio"] forState:UIControlStateNormal];
-}
--(void) subFourOneAudioDisable
-{
-     [self.subFourOneAudioAdjustBtn setImage:[UIImage imageNamed:@"noAudio"] forState:UIControlStateNormal];
-}
--(void) subFourTwoAudioDisable
-{
-    [self.subFourTwoAudioAdjustBtn setImage:[UIImage imageNamed:@"noAudio"] forState:UIControlStateNormal];
-}
--(void) subFourThreeAudioDisable
-{
-     [self.subFourThreeAudioAdjustBtn setImage:[UIImage imageNamed:@"noAudio"] forState:UIControlStateNormal];
-}
--(void) subFourFourAudioDisable
-{
-    [self.subFourFourAudioAdjustBtn setImage:[UIImage imageNamed:@"noAudio"] forState:UIControlStateNormal];
+- (IBAction)enableAndDisableOfScrollContainerAudioBtn:(id)sender {
+    
+    if(maincontainerSub.subscribeToAudio==YES){
+        [self adjustSubscriberAudio:NO subscriber:maincontainerSub button:_scrollContainerAudioBtn];
+    }else{
+        [self adjustSubscriberAudio:YES subscriber:maincontainerSub button:_scrollContainerAudioBtn];
+    }
 }
 
+-(void)adjustSubscriberAudio:(Boolean )value subscriber:(OTSubscriber *)sub button:(UIButton *)button{
+    sub.subscribeToAudio=value;
+    if(value){
+        [button setImage:[UIImage imageNamed:@"audio"] forState:UIControlStateNormal];
+    }else{
+        [button setImage:[UIImage imageNamed:@"noAudio"] forState:UIControlStateNormal];
+    }
+}
 
 - (void)subscriber:(OTSubscriber *)subscriber didFailWithError:(OTError *)error
 {
@@ -963,61 +962,29 @@ NSArray *keys;
 //NSString* selectedItem;
 bool disabled;
 int indexValue;
-- (void)subscriberVideoDisabled:(OTSubscriber *)subscriber
-                         reason:(OTSubscriberVideoEventReason)reason
-{
-    [self.defaultimage setHidden:NO];
+- (void)subscriberVideoDisabled:(OTSubscriber *)subscriber reason:(OTSubscriberVideoEventReason)reason{
     NSLog(@"subscriber video disabled. ---   %@",subscriber);
     disabled=YES;
     if(keys !=nil){
     int index=(int)[keys indexOfObject:subscriber.stream.connection.connectionId];
     indexValue=index;
-    //selectedItem=views[index];
     NSLog(@" ----------- %d",index);
     [_allSubcribersPresentVideos setObject:@"yes" forKey:subscriber.stream.connection.connectionId];
-    [self adjustSubscribers];
+        if(changeveiw){
+            [self shuffle];
+        }else {
+            [self recyclerView];
+        }
     }
 }
 - (void)subscriberVideoEnabled:(OTSubscriberKit *)subscriber reason:(OTSubscriberVideoEventReason)reason {
   NSLog(@"subscriber video enabled. ---   %@",subscriber);
-   // [self.defaultimage setHidden:YES];
-     disabled=NO;
+    disabled=NO;
     if(keys !=nil){
-     int index=(int)[keys indexOfObject:subscriber.stream.connection.connectionId];
-    indexValue=index;
+       int index=(int)[keys indexOfObject:subscriber.stream.connection.connectionId];
+       indexValue=index;
        [_allSubcribersPresentVideos setObject:@"no" forKey:subscriber.stream.connection.connectionId];
-     [self adjustSubscribers];
-    }
-}
-
--(void)adjustSubscribers
-{
-    if(keys.count==1){
-        if(disabled){ [self.defaultimage setHidden:NO]; }else{ [self.defaultimage setHidden:YES];}
-    }else if(keys.count==2){
-        if(indexValue==0){
-            if(disabled){ [self.subTwoLayerOneDefaultImage setHidden:NO]; }else{ [self.subTwoLayerOneDefaultImage setHidden:YES];}
-        }else if(indexValue==1){
-            if(disabled){[self.subTwoLayerTwoDefaultImage setHidden:NO]; }else{ [self.subTwoLayerTwoDefaultImage setHidden:YES];}
-        }//else if
-    }else if(keys.count==3){
-        if(indexValue==0){
-            if(disabled){[self.subThreeLayerDefaultImg1 setHidden:NO]; }else{ [self.subThreeLayerDefaultImg1 setHidden:YES];}
-        }else if(indexValue==1){
-            if(disabled){[self.subThreeLayerDefaultImg2 setHidden:NO]; }else{[self.subThreeLayerDefaultImg2 setHidden:YES];}
-        }else if(indexValue==2){
-            if(disabled){[self.subThreeLayerDefaultImg3 setHidden:NO]; }else{[self.subThreeLayerDefaultImg3 setHidden:YES];}
-        }
-    }else if(keys.count==4){
-        if(indexValue==0){
-            if(disabled){[self.subFourLayerDefault1 setHidden:NO]; }else{ [self.subFourLayerDefault1 setHidden:YES]; }
-        }else if (indexValue==1){
-            if(disabled){ [self.subFourLayerDefault2 setHidden:NO];}else{ [self.subFourLayerDefault2 setHidden:YES]; }
-        }else if (indexValue==2){
-            if(disabled){[self.subFourLayerDefault3 setHidden:NO]; }else{ [self.subFourLayerDefault3 setHidden:YES]; }
-        }else if (indexValue==3){
-            if(disabled){[self.subFourLayerDefault4 setHidden:NO]; }else{ [self.subFourLayerDefault4 setHidden:YES]; }
-        }
+       if(changeveiw){[self shuffle];}else {[self recyclerView]; }
     }
 }
 
@@ -1026,19 +993,16 @@ int indexValue;
 {
     if (_publisher.publishAudio == YES) {
         _publisher.publishAudio = NO;
-        //        self.audioSubUnsubButton.selected = YES;
         [self.audioSubUnsubButton setImage:[UIImage imageNamed:@"ic_pause_audio"] forState:UIControlStateNormal];
         
     } else {
         _publisher.publishAudio = YES;
-        //        self.audioSubUnsubButton.selected = NO;
         [self.audioSubUnsubButton setImage:[UIImage imageNamed:@"unmute"] forState:UIControlStateNormal];
     }
     
 }
-
-- (void)dealloc
-{
+/*dealloc*/
+- (void)dealloc{
     [[NSNotificationCenter defaultCenter]
      removeObserver:self
      name:UIApplicationWillResignActiveNotification
@@ -1048,34 +1012,18 @@ int indexValue;
      removeObserver:self
      name:UIApplicationDidBecomeActiveNotification
      object:nil];
-}
-
-/*- (void)viewDidDisappear:(BOOL)animated
- {
- [super viewDidDisappear:animated];
- [self cleanupPublisher];
- [self cleanupSubscriber];
- }*/
-
+}//dealloc
 #pragma mark - Helper Methods
-- (IBAction)endCallAction:(UIButton *)button
-{
+- (IBAction)endCallAction:(UIButton *)button{
     sessionDisconnect=YES;
     if (_session) {
         // disconnect session
         NSLog(@"disconnecting....");
         [self destroyAll];
-        /* [_session disconnect:nil];
-        [self cleanupPublisher];
-        [self cleanupSubscriber];
-        [self dismissViewControllerAnimated:YES completion:nil];
-        [UIApplication sharedApplication].idleTimerDisabled = NO;
-        _allSubscribers=nil;
-        return;*/
     }
 }
+/*--------toggleVideo------*/
 - (IBAction)toggleVideo:(id)sender {
-    
     if (_publisher.publishVideo == YES) {
         _publisher.publishVideo = NO;
         [self.videoSubUnsubButton setImage:[UIImage imageNamed:@"ic_pause_video"] forState:UIControlStateNormal];
@@ -1085,8 +1033,18 @@ int indexValue;
         [self.videoSubUnsubButton setImage:[UIImage imageNamed:@"ic_play_video"] forState:UIControlStateNormal];
         [self.publisherDeaultImage setHidden:YES];
     }
+}//toggleVideo
+/*---------toggleMuteUnmuteAllButton------*/
+- (IBAction)toggleMuteUnmuteAllButton:(id)sender {
     
-}
+    if([_muteUnmuteAllButton.titleLabel.text isEqualToString:@"Mute all"]){
+        [_muteUnmuteAllButton setTitle:@"Unmute all" forState:UIControlStateNormal];
+        [self enableAndDisableAllSubscriberAudios:false];
+    }else{
+        [_muteUnmuteAllButton setTitle:@"Mute all" forState:UIControlStateNormal];
+        [self enableAndDisableAllSubscriberAudios:true];
+    }
+}//toggleMuteUnmuteAllButton
 
 /*------connection created ---------*/
 - (void)  session:(OTSession *)session
@@ -1104,14 +1062,13 @@ connectionDestroyed:(OTConnection *)connection
             // [self.messegeForUser setHidden:NO];
     NSLog(@"session connectionDestroyed (%@)", connection.data);
    
-    if(_allSubscribers.count==0){[_messegeForUser setHidden:NO]; [self.defaultimage setHidden:YES]; [self.subscriberOneAudioAdjustBtn setHidden:YES];}
+    if(_allSubscribers.count==0){[_messegeForUser setHidden:NO]; //[self.defaultimage setHidden:YES]; //[self.subscriberOneAudioAdjustBtn setHidden:YES];
+        
+    }
     if(_allSubcribersPresentVideos.count>0){
         [_allSubcribersPresentVideos removeObjectForKey:connection.connectionId];
     }
     
 }//connectionDestroyed
-
-
-
 @end
 
